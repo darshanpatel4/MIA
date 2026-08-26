@@ -1,6 +1,19 @@
-# MIA - Multi-model Interactive Agentic-system
+# MIA — Multi-model Interactive Agentic-system
+
+[![License: Apache 2.0](https://img.shields.io/badge/license-Apache%202.0-blue.svg)](LICENSE)
+[![Python 3.10+](https://img.shields.io/badge/python-3.10%2B-blue.svg)](https://www.python.org/downloads/)
+[![Platform: Windows](https://img.shields.io/badge/platform-Windows-0078d6.svg)](#requirements)
 
 MIA is a self-hosted AI agent that gives you full remote control of your Windows PC from anywhere — a premium web interface, backed by an agentic AI brain (Gemini, OpenAI, or local Ollama models) with function calling, accessible over the internet via Cloudflare Tunnels.
+
+<!--
+  Add a screenshot or short screen-recording of the chat UI / screen stream here before sharing this repo —
+  it's the single biggest thing that makes a repo feel real. Save it under docs/ (e.g. docs/screenshot.png)
+  and uncomment the line below. Don't use a live screenshot that shows real personal file names, open
+  tabs, or other identifying content — take a clean one specifically for this.
+
+  ![MIA screenshot](docs/screenshot.png)
+-->
 
 ## Features
 
