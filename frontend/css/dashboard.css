@@ -1,0 +1,513 @@
+/* ============================================================
+   MIA — Dashboard & Utility Panel Styles
+   System monitor, file browser, process manager, terminal
+   ============================================================ */
+
+.empty-state-icon {
+    width: 40px;
+    height: 40px;
+    margin: 0 auto 16px;
+    opacity: 0.35;
+    color: var(--text-dim);
+}
+.empty-state-icon svg { width: 100%; height: 100%; }
+
+/* ── Section Labels ──────────────────────────────────────── */
+.section-label-lg {
+    font-family: var(--font-mono);
+    font-size: 11px;
+    font-weight: 500;
+    letter-spacing: 1.2px;
+    text-transform: uppercase;
+    color: var(--text-dim);
+    margin: 24px 0 12px;
+}
+
+/* ── Dashboard Grid ──────────────────────────────────────── */
+.dashboard-panel {
+    flex: 1;
+    overflow-y: auto;
+    padding: 20px;
+}
+
+.dashboard-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 16px;
+    margin-bottom: 20px;
+}
+
+.stat-card {
+    background: var(--bg-secondary);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 20px;
+    padding-left: 22px;
+    position: relative;
+    overflow: hidden;
+    transition: var(--transition);
+}
+
+.stat-card::before {
+    content: '';
+    position: absolute;
+    left: 0; top: 0; bottom: 0;
+    width: 3px;
+    background: transparent;
+}
+.stat-card.state-ok::before { background: var(--success); }
+.stat-card.state-warn::before { background: var(--warning); }
+.stat-card.state-danger::before { background: var(--danger); }
+
+.stat-card:hover {
+    border-color: var(--border-light);
+}
+
+.stat-card-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 12px;
+}
+
+.stat-card-title {
+    font-family: var(--font-mono);
+    font-size: 10.5px;
+    font-weight: 500;
+    color: var(--text-dim);
+    text-transform: uppercase;
+    letter-spacing: 1.1px;
+}
+
+.stat-card-icon svg {
+    width: 16px;
+    height: 16px;
+    color: var(--text-dim);
+}
+
+.stat-card-value {
+    font-size: 26px;
+    font-weight: 700;
+    font-family: var(--font-display);
+    font-variant-numeric: tabular-nums;
+    margin-bottom: 4px;
+}
+
+.stat-card-sub {
+    font-family: var(--font-mono);
+    font-size: 11.5px;
+    color: var(--text-dim);
+}
+
+/* Progress bar */
+.progress-bar {
+    width: 100%;
+    height: 6px;
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: 10px;
+    margin-top: 12px;
+    overflow: hidden;
+}
+
+.progress-bar-fill {
+    height: 100%;
+    border-radius: 10px;
+    transition: width 0.5s ease;
+    background: linear-gradient(90deg, var(--accent), var(--accent-2));
+}
+
+.progress-bar-fill.warning {
+    background: linear-gradient(90deg, var(--warning), #e17055);
+}
+
+.progress-bar-fill.danger {
+    background: linear-gradient(90deg, var(--danger), #e74c3c);
+}
+
+/* ── CPU Cores Grid ──────────────────────────────────────── */
+.cores-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(40px, 1fr));
+    gap: 4px;
+    margin-top: 12px;
+}
+
+.core-bar {
+    height: 32px;
+    background: rgba(255, 255, 255, 0.03);
+    border-radius: 4px;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column-reverse;
+}
+
+.core-bar-fill {
+    width: 100%;
+    transition: height 0.5s ease;
+    background: var(--accent);
+    border-radius: 4px;
+}
+
+/* ── File Browser ────────────────────────────────────────── */
+.files-panel {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+}
+
+.files-toolbar {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 12px 20px;
+    background: var(--bg-primary);
+    border-bottom: 1px solid var(--border);
+}
+
+.path-breadcrumb {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    flex: 1;
+    overflow-x: auto;
+    font-family: var(--font-mono);
+    font-size: 13px;
+}
+
+.path-segment {
+    padding: 4px 8px;
+    border-radius: 6px;
+    cursor: pointer;
+    color: var(--text-secondary);
+    white-space: nowrap;
+    transition: var(--transition);
+    background: none;
+    border: none;
+    font-family: inherit;
+    font-size: inherit;
+}
+
+.path-segment:hover {
+    background: var(--bg-hover);
+    color: var(--accent);
+}
+
+.path-separator {
+    color: var(--text-muted);
+    font-size: 12px;
+}
+
+.files-list {
+    flex: 1;
+    overflow-y: auto;
+    padding: 8px;
+}
+
+.file-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 10px 16px;
+    border-radius: var(--radius-sm);
+    cursor: pointer;
+    transition: var(--transition);
+    border: none;
+    background: none;
+    width: 100%;
+    text-align: left;
+    color: var(--text);
+    font-family: inherit;
+    font-size: 13px;
+}
+
+.file-item:hover {
+    background: var(--bg-hover);
+}
+
+.file-item .file-icon {
+    width: 32px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--text-dim);
+    flex-shrink: 0;
+}
+.file-item .file-icon svg { width: 17px; height: 17px; }
+
+.file-item .file-name {
+    flex: 1;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.file-item .file-size {
+    font-family: var(--font-mono);
+    font-size: 12px;
+    color: var(--text-dim);
+    min-width: 80px;
+    text-align: right;
+}
+
+.file-item .file-date {
+    font-size: 12px;
+    color: var(--text-dim);
+    min-width: 140px;
+}
+
+/* ── Process Manager ─────────────────────────────────────── */
+.process-panel {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+}
+
+.process-toolbar {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 12px 20px;
+    background: var(--bg-primary);
+    border-bottom: 1px solid var(--border);
+}
+
+.search-input {
+    flex: 1;
+    max-width: 300px;
+    padding: 8px 14px;
+    background: var(--bg-secondary);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    color: var(--text);
+    font-family: inherit;
+    font-size: 13px;
+    outline: none;
+    transition: var(--transition);
+}
+
+.search-input:focus {
+    border-color: var(--accent);
+}
+
+.process-list {
+    flex: 1;
+    overflow-y: auto;
+}
+
+.process-table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.process-table th {
+    position: sticky;
+    top: 0;
+    background: var(--bg-primary);
+    padding: 10px 16px;
+    font-size: 11px;
+    font-weight: 600;
+    color: var(--text-dim);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    text-align: left;
+    border-bottom: 1px solid var(--border);
+    cursor: pointer;
+}
+
+.process-table th:hover {
+    color: var(--accent);
+}
+
+.process-table td {
+    padding: 8px 16px;
+    font-size: 13px;
+    border-bottom: 1px solid var(--border);
+}
+
+.process-table tr:hover td {
+    background: var(--bg-hover);
+}
+
+.kill-btn {
+    padding: 4px 10px;
+    background: rgba(255, 107, 107, 0.1);
+    border: 1px solid rgba(255, 107, 107, 0.2);
+    border-radius: 6px;
+    color: var(--danger);
+    font-size: 11px;
+    cursor: pointer;
+    transition: var(--transition);
+    font-family: inherit;
+}
+
+.kill-btn:hover {
+    background: rgba(255, 107, 107, 0.2);
+    border-color: var(--danger);
+}
+
+/* ── Terminal ────────────────────────────────────────────── */
+.terminal-panel {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    background: #0c0c14;
+}
+
+.terminal-output {
+    flex: 1;
+    overflow-y: auto;
+    padding: 16px 20px;
+    font-family: var(--font-mono);
+    font-size: 13px;
+    line-height: 1.6;
+    white-space: pre-wrap;
+    word-break: break-all;
+}
+
+.terminal-output .stdout { color: var(--text); }
+.terminal-output .stderr { color: var(--danger); }
+.terminal-output .system { color: var(--accent); }
+.terminal-output .prompt { color: var(--accent-2); }
+
+.terminal-input-area {
+    display: flex;
+    align-items: center;
+    padding: 12px 20px;
+    border-top: 1px solid var(--border);
+    background: var(--bg-primary);
+    gap: 8px;
+}
+
+.terminal-prompt-symbol {
+    color: var(--accent-2);
+    font-family: var(--font-mono);
+    font-size: 14px;
+    font-weight: 600;
+}
+
+.terminal-input {
+    flex: 1;
+    background: none;
+    border: none;
+    color: var(--text);
+    font-family: var(--font-mono);
+    font-size: 13px;
+    outline: none;
+}
+
+/* ── Tasks Panel ─────────────────────────────────────────── */
+.tasks-panel {
+    flex: 1;
+    overflow-y: auto;
+    padding: 20px;
+}
+
+.task-card {
+    background: var(--bg-secondary);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 16px 20px;
+    margin-bottom: 12px;
+    transition: var(--transition);
+}
+
+.task-card:hover {
+    border-color: var(--border-light);
+}
+
+.task-card-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 8px;
+}
+
+.task-name {
+    font-family: var(--font-display);
+    font-weight: 600;
+    font-size: 15px;
+}
+
+.task-status {
+    font-size: 11px;
+    padding: 3px 10px;
+    border-radius: 100px;
+    font-weight: 600;
+}
+
+.task-command {
+    font-family: var(--font-mono);
+    font-size: 12px;
+    color: var(--text-secondary);
+    background: rgba(0, 0, 0, 0.2);
+    padding: 8px 12px;
+    border-radius: 6px;
+    margin-top: 8px;
+}
+
+.task-meta {
+    display: flex;
+    gap: 16px;
+    margin-top: 8px;
+    font-size: 12px;
+    color: var(--text-dim);
+}
+
+/* ── Notification Toast ──────────────────────────────────── */
+.notification-container {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    z-index: 10000;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    max-width: 380px;
+}
+
+.notification-toast {
+    background: var(--bg-card);
+    backdrop-filter: blur(20px);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 14px 18px;
+    box-shadow: var(--shadow-lg);
+    animation: slideInRight 0.4s ease;
+    display: flex;
+    gap: 12px;
+    align-items: flex-start;
+}
+
+@keyframes slideInRight {
+    from { transform: translateX(100%); opacity: 0; }
+    to { transform: translateX(0); opacity: 1; }
+}
+
+.notification-toast.info { border-left: 3px solid var(--info); }
+.notification-toast.success { border-left: 3px solid var(--success); }
+.notification-toast.warning { border-left: 3px solid var(--warning); }
+.notification-toast.error { border-left: 3px solid var(--danger); }
+
+.notification-title {
+    font-weight: 600;
+    font-size: 13px;
+    margin-bottom: 2px;
+}
+
+.notification-message {
+    font-size: 12px;
+    color: var(--text-secondary);
+}
+
+.notification-close {
+    background: none;
+    border: none;
+    color: var(--text-dim);
+    cursor: pointer;
+    font-size: 16px;
+    padding: 0;
+    line-height: 1;
+}

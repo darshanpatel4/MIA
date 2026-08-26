@@ -1,0 +1,7 @@
+tunnel: <YOUR-TUNNEL-ID-HERE>
+credentials-file: C:\Users\<YourUsername>\.cloudflared\<YOUR-TUNNEL-ID-HERE>.json
+
+ingress:
+  - hostname: mia.yourdomain.com
+    service: http://localhost:8765
+  - service: http_status:404

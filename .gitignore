@@ -1,0 +1,27 @@
+# Secrets — never commit real config
+.env
+
+# Python
+__pycache__/
+*.pyc
+*.pyo
+.venv/
+venv/
+env/
+*.egg-info/
+.pytest_cache/
+
+# Logs
+Logs/*.log
+
+# Runtime data — generated at runtime, not source
+data/sessions/*.json
+data/memory.json
+data/error_log.json
+data/screenshots/
+
+# Editor / OS
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db

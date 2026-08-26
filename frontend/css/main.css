@@ -1,0 +1,357 @@
+/* ============================================================
+   MIA — Instrument Panel Design System (IDE Layout)
+   ============================================================ */
+
+@import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Sans+Condensed:wght@500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap');
+
+/* ── CSS Variables ───────────────────────────────────────── */
+:root {
+    --bg-deep: #0e1116;       /* Main app background */
+    --bg-sidebar: #0b0e13;    /* Sessions sidebar */
+    --bg-activity: #0a0d12;   /* Far left activity bar */
+    --bg-card: #1b212a;       /* Cards/Inputs */
+    --bg-hover: rgba(255, 255, 255, 0.05);
+    --bg-active: rgba(255, 255, 255, 0.08);
+
+    --accent: #d9974a;        /* Warm copper — instrument-panel accent */
+    --accent-light: #e8b276;
+    --accent-glow: rgba(217, 151, 74, 0.18);
+    --accent-ink: #1b1206;    /* Text color placed on top of --accent */
+
+    --success: #4fc49a;
+    --warning: #e0b23c;
+    --danger: #e2604f;
+    --info: #6fa0d6;
+
+    --text: #e8eaed;
+    --text-dim: #94a0ad;
+    --text-muted: #616c78;
+
+    --border: rgba(255, 255, 255, 0.09);
+    --border-strong: rgba(255, 255, 255, 0.17);
+    --transition: 0.2s ease;
+    --shadow-lg: 0 16px 40px rgba(0, 0, 0, 0.45);
+
+    --radius-sm: 6px;
+    --radius: 12px;
+    --radius-lg: 16px;
+
+    --sidebar-width: 260px;
+    --activity-bar-width: 50px;
+
+    --font-sans: 'IBM Plex Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+    --font-display: 'IBM Plex Sans Condensed', 'Arial Narrow', sans-serif;
+    --font-mono: 'IBM Plex Mono', monospace;
+
+    /* Aliases — dashboard.css/chat.css were written against these names;
+       kept as real tokens instead of leaving them undefined (previously
+       silently invalid, e.g. file rows/task cards/process table all had
+       no working background, radius, or transition). */
+    --bg-primary: var(--bg-deep);
+    --bg-secondary: var(--bg-card);
+    --text-secondary: var(--text-dim);
+    --border-light: var(--border-strong);
+    --accent-2: var(--accent-light);
+}
+
+/* ── Reset ───────────────────────────────────────────────── */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html, body { height: 100%; overflow: hidden; }
+body {
+    font-family: var(--font-sans);
+    background: var(--bg-deep);
+    color: var(--text);
+    -webkit-font-smoothing: antialiased;
+    font-size: 14px;
+}
+
+/* ── Scrollbar ───────────────────────────────────────────── */
+::-webkit-scrollbar { width: 4px; height: 4px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.1); border-radius: 4px; }
+::-webkit-scrollbar-thumb:hover { background: rgba(255,255,255,0.2); }
+
+/* ── App Layout ──────────────────────────────────────────── */
+.app {
+    display: flex;
+    height: 100vh;
+    width: 100vw;
+}
+
+/* ── Primary Activity Bar (Far Left) ─────────────────────── */
+.activity-bar {
+    width: var(--activity-bar-width);
+    min-width: var(--activity-bar-width);
+    background: var(--bg-activity);
+    border-right: 1px solid var(--border);
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    padding: 12px 0;
+    align-items: center;
+    z-index: 100;
+}
+.activity-top, .activity-bottom {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 12px;
+    width: 100%;
+}
+.logo-icon {
+    width: 32px;
+    height: 32px;
+    border-radius: 8px;
+    background: var(--accent);
+    color: var(--accent-ink);
+    font-family: var(--font-display);
+    font-weight: 700;
+    font-size: 15px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    margin-bottom: 10px;
+    transition: 0.2s;
+}
+.logo-icon:hover { transform: scale(1.06); }
+
+.activity-tab {
+    width: 38px;
+    height: 38px;
+    background: none;
+    border: none;
+    color: var(--text-dim);
+    font-size: 18px;
+    cursor: pointer;
+    border-radius: var(--radius-sm);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: 0.2s;
+    position: relative;
+}
+.activity-tab svg {
+    width: 19px;
+    height: 19px;
+    stroke: currentColor;
+}
+.activity-tab:hover {
+    color: var(--text);
+    background: var(--bg-hover);
+}
+.activity-tab.active {
+    color: var(--accent);
+}
+.activity-tab.active::before {
+    content: '';
+    position: absolute;
+    left: -6px;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 3px;
+    height: 20px;
+    background: var(--accent);
+    border-radius: 0 3px 3px 0;
+}
+
+.status-dot-btn { position: relative; }
+.status-dot {
+    width: 10px;
+    height: 10px;
+    background: var(--success);
+    border-radius: 50%;
+    box-shadow: 0 0 10px var(--success);
+    transition: background-color 0.2s, box-shadow 0.2s;
+}
+.status-dot-btn.offline .status-dot {
+    background: var(--danger);
+    box-shadow: 0 0 10px var(--danger);
+}
+
+/* ── Secondary Sidebar (Sessions) ────────────────────────── */
+.left-sidebar {
+    width: var(--sidebar-width);
+    min-width: var(--sidebar-width);
+    background: var(--bg-sidebar);
+    border-right: 1px solid var(--border);
+    display: flex;
+    flex-direction: column;
+}
+.sidebar-header {
+    padding: 16px 20px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+.logo-text {
+    font-family: var(--font-display);
+    font-weight: 600;
+    font-size: 15px;
+    color: var(--text);
+    text-transform: uppercase;
+    letter-spacing: 1.5px;
+}
+.header-actions {
+    display: flex;
+    gap: 8px;
+}
+.icon-btn {
+    background: none;
+    border: none;
+    color: var(--text-dim);
+    cursor: pointer;
+    border-radius: var(--radius-sm);
+    padding: 4px;
+    transition: 0.2s;
+    font-size: 16px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+.icon-btn.small { font-size: 14px; }
+.icon-btn:hover { color: var(--text); background: var(--bg-hover); }
+.icon-btn svg { width: 15px; height: 15px; }
+.icon-btn.small svg { width: 13px; height: 13px; }
+
+.sidebar-section { padding: 8px 12px; }
+.section-title {
+    font-family: var(--font-mono);
+    font-size: 10.5px;
+    text-transform: uppercase;
+    font-weight: 500;
+    color: var(--text-muted);
+    letter-spacing: 1.2px;
+    margin-bottom: 8px;
+    padding: 0 8px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+.nav-btn {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    width: 100%;
+    padding: 8px 12px;
+    background: none;
+    border: none;
+    color: var(--text-dim);
+    border-radius: var(--radius-sm);
+    cursor: pointer;
+    font-size: 14px;
+    transition: 0.2s;
+    text-align: left;
+}
+.nav-btn:hover { background: var(--bg-hover); color: var(--text); }
+.btn-icon { display: inline-flex; }
+.btn-icon svg { width: 15px; height: 15px; }
+.nav-btn.accent-btn { color: var(--accent); }
+.nav-btn.accent-btn:hover { background: var(--accent-glow); }
+
+.sessions-list { flex: 1; overflow-y: auto; }
+.session-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 8px 12px;
+    border-radius: var(--radius-sm);
+    cursor: pointer;
+    color: var(--text-dim);
+    font-size: 13px;
+    margin-bottom: 2px;
+    transition: 0.2s;
+}
+.session-item:hover { background: var(--bg-hover); }
+.session-item.active { background: var(--bg-active); color: var(--text); }
+.session-title { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.session-menu button svg { width: 13px; height: 13px; flex-shrink: 0; }
+.session-actions .icon-btn.small svg { width: 14px; height: 14px; }
+.session-time { font-size: 11px; opacity: 0.7; }
+.all-sessions { color: var(--text-muted); font-size: 12px; margin-top: 4px; }
+
+/* ── Main Content Area ───────────────────────────────────── */
+.main-content {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    background: var(--bg-deep);
+    position: relative;
+    overflow: hidden;
+}
+
+/* ── Views System ────────────────────────────────────────── */
+.view-panel {
+    display: none;
+    flex: 1;
+    flex-direction: column;
+    overflow: hidden;
+}
+.view-panel.active {
+    display: flex;
+}
+
+/* Common View Header */
+.chat-header {
+    height: 50px;
+    min-height: 50px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 24px;
+    border-bottom: 1px solid transparent;
+}
+.breadcrumb {
+    font-family: var(--font-mono);
+    font-size: 12.5px;
+    font-weight: 500;
+}
+.breadcrumb .dim { color: var(--text-faint, var(--text-muted)); }
+.breadcrumb .sep { color: var(--text-muted); margin: 0 6px; }
+.breadcrumb .active { color: var(--text); }
+.breadcrumb .active b { color: var(--accent); font-weight: 500; }
+.breadcrumb-icon {
+    display: inline-flex;
+    vertical-align: -3px;
+    margin-right: 8px;
+    color: var(--text-dim);
+}
+.breadcrumb-icon svg { width: 14px; height: 14px; }
+
+.header-right { display: flex; gap: 12px; }
+.header-action-btn {
+    background: none;
+    border: 1px solid var(--border);
+    color: var(--text-dim);
+    padding: 6px 12px;
+    border-radius: var(--radius-sm);
+    font-size: 12px;
+    cursor: pointer;
+    transition: 0.2s;
+}
+.header-action-btn:hover { background: var(--bg-hover); color: var(--text); }
+
+/* Utility Classes for Tools panels in main area */
+.header-btn {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    color: var(--text);
+    padding: 6px 10px;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 12px;
+}
+.stat-card-icon svg { width: 17px; height: 17px; color: var(--text-dim); }
+
+.search-input {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    color: var(--text);
+    padding: 6px 8px;
+    border-radius: 4px;
+    width: 100%;
+    margin-bottom: 10px;
+}
+.process-table { width: 100%; border-collapse: collapse; font-size: 12px; }
+.process-table th { text-align: left; color: var(--text-dim); padding-bottom: 8px; }
+.process-table td { padding: 4px 0; border-bottom: 1px solid var(--border); }

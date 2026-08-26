@@ -1,0 +1,160 @@
+/* ============================================================
+   MIA — Screen Viewer Styles
+   Remote desktop viewer with control overlay
+   ============================================================ */
+
+.screen-panel {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    background: #000;
+}
+
+/* ── Toolbar ─────────────────────────────────────────────── */
+.screen-toolbar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 10px 20px;
+    background: var(--bg-primary);
+    border-bottom: 1px solid var(--border);
+    gap: 16px;
+    z-index: 10;
+}
+
+.screen-toolbar-group {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.screen-toolbar label {
+    font-size: 12px;
+    color: var(--text-dim);
+    font-weight: 500;
+}
+
+.screen-toolbar select,
+.screen-toolbar input[type="range"] {
+    background: var(--bg-secondary);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    color: var(--text);
+    padding: 4px 8px;
+    font-size: 12px;
+    font-family: inherit;
+    outline: none;
+}
+
+.screen-toolbar select:focus,
+.screen-toolbar input:focus {
+    border-color: var(--accent);
+}
+
+.screen-stat {
+    font-family: var(--font-mono);
+    font-size: 12px;
+    padding: 4px 10px;
+    border-radius: 6px;
+    font-weight: 500;
+}
+
+.screen-stat.fps {
+    background: rgba(0, 184, 148, 0.15);
+    color: var(--success);
+}
+
+.screen-stat.status {
+    background: rgba(108, 92, 231, 0.15);
+    color: var(--accent-light);
+}
+
+.screen-toggle-btn {
+    padding: 6px 14px;
+    border-radius: 8px;
+    border: 1px solid var(--border);
+    background: var(--bg-secondary);
+    color: var(--text);
+    font-size: 12px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: var(--transition);
+    font-family: inherit;
+    display: flex;
+    align-items: center;
+    gap: 7px;
+}
+.screen-toggle-btn svg { width: 12px; height: 12px; flex-shrink: 0; }
+
+.screen-toggle-btn:hover {
+    border-color: var(--accent);
+    background: var(--bg-active);
+}
+
+.screen-toggle-btn.active {
+    background: rgba(0, 184, 148, 0.15);
+    border-color: var(--success);
+    color: var(--success);
+}
+
+/* ── Viewer ──────────────────────────────────────────────── */
+.screen-viewer {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+    position: relative;
+    cursor: default;
+}
+
+.screen-viewer.control-active {
+    cursor: crosshair;
+}
+
+.screen-viewer img {
+    max-width: 100%;
+    max-height: 100%;
+    object-fit: contain;
+    image-rendering: auto;
+    user-select: none;
+    -webkit-user-drag: none;
+}
+
+.screen-viewer .no-stream {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 12px;
+    color: var(--text-dim);
+}
+
+.screen-viewer .no-stream .icon {
+    font-size: 48px;
+    opacity: 0.3;
+}
+
+.screen-viewer .no-stream p {
+    font-size: 14px;
+}
+
+/* ── Fullscreen ──────────────────────────────────────────── */
+.screen-panel.fullscreen {
+    position: fixed;
+    inset: 0;
+    z-index: 9999;
+}
+
+.screen-panel.fullscreen .screen-toolbar {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    opacity: 0;
+    transition: opacity 0.3s;
+}
+
+.screen-panel.fullscreen .screen-toolbar:hover {
+    opacity: 1;
+}

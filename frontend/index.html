@@ -1,0 +1,484 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MIA — Personal AI Agent</title>
+    <meta name="description" content="MIA: Your personal AI agent with full PC control, accessible from anywhere.">
+    <link rel="stylesheet" href="/css/main.css?v=9">
+    <link rel="stylesheet" href="/css/chat.css?v=9">
+    <link rel="stylesheet" href="/css/screen.css?v=9">
+    <link rel="stylesheet" href="/css/dashboard.css?v=9">
+</head>
+<body>
+    <div class="app" id="app">
+        
+        <!-- ═══ PRIMARY ACTIVITY BAR (Far Left) ═══ -->
+        <nav class="activity-bar">
+            <div class="activity-top">
+                <div class="logo-icon" onclick="location.reload()" title="MIA">M</div>
+                <button class="activity-tab active" data-view="chat" onclick="switchMainView('chat')" title="Chat">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/></svg>
+                </button>
+                <button class="activity-tab" data-view="screen" onclick="switchMainView('screen')" title="Screen">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="4" width="20" height="13" rx="1.5"/><path d="M8 21h8M12 17v4"/></svg>
+                </button>
+                <button class="activity-tab" data-view="files" onclick="switchMainView('files')" title="Files">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M3 7a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V7z"/></svg>
+                </button>
+                <button class="activity-tab" data-view="monitor" onclick="switchMainView('monitor')" title="Monitor">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12h4l2-7 4 14 2-7h6"/></svg>
+                </button>
+                <button class="activity-tab" data-view="tasks" onclick="switchMainView('tasks')" title="Tasks">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3.5 2"/></svg>
+                </button>
+                <button class="activity-tab" data-view="terminal" onclick="switchMainView('terminal')" title="Terminal">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="m5 7 4 4-4 4M12 15h7"/></svg>
+                </button>
+                <button class="activity-tab" data-view="skills" onclick="switchMainView('skills')" title="Skills">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M20.5 11a2.5 2.5 0 0 0-2.45-3H16V6.5a2.5 2.5 0 0 0-5 0V8H8.5a1 1 0 0 0-1 1v2.5a2.5 2.5 0 0 1 0 5V19a1 1 0 0 0 1 1H11a2.5 2.5 0 0 1 5 0h2.5a1 1 0 0 0 1-1v-2.5a2.5 2.5 0 0 0 3-2.45 2.5 2.5 0 0 0-2-2.45V11z"/></svg>
+                </button>
+            </div>
+            <div class="activity-bottom">
+                <button class="activity-tab status-dot-btn" id="connectionStatus" title="Connected"><div class="status-dot"></div></button>
+                <button class="activity-tab" data-view="settings" onclick="switchMainView('settings')" title="Settings">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.6 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.6a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09A1.65 1.65 0 0 0 15 4.6a1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+                </button>
+                <button class="activity-tab" onclick="logout()" title="Logout">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4M16 17l5-5-5-5M21 12H9"/></svg>
+                </button>
+            </div>
+        </nav>
+
+        <!-- ═══ SECONDARY SIDEBAR (Sessions) ═══ -->
+        <aside class="left-sidebar" id="sessionsSidebar">
+            <div class="sidebar-header">
+                <span class="logo-text">MIA</span>
+            </div>
+            
+            <div class="sidebar-section" style="padding-top: 16px;">
+                <button class="nav-btn accent-btn" onclick="createNewSession()">
+                    <span class="btn-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg></span>
+                    <span>New session</span>
+                </button>
+            </div>
+            
+            <div class="sidebar-section sessions-list" id="sessionsListContainer">
+                <div class="section-title">
+                    <span>SESSIONS</span>
+                    <button class="icon-btn small" onclick="loadSessions()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 0 1 15.4-6.36L21 8M3 12a9 9 0 0 0 15.4 6.36L21 16M21 8v-5m0 5h-5M3 16v5m0-5h5"/></svg></button>
+                </div>
+                <!-- Sessions will be loaded dynamically here via JS -->
+            </div>
+        </aside>
+
+        <!-- ═══ MAIN CONTENT AREA ═══ -->
+        <main class="main-content">
+            
+            <!-- CHAT VIEW -->
+            <div class="view-panel active" id="view-chat">
+                <header class="chat-header">
+                    <div class="breadcrumb">
+                        <span class="dim">MIA</span> <span class="sep">›</span> <span class="active">Chat</span>
+                    </div>
+                    <div class="header-right">
+                        <button class="header-action-btn" onclick="clearChat()" title="Clear Chat"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" style="width:12px;height:12px;vertical-align:-2px;margin-right:5px;"><path d="M4 7h16M9 7V5a2 2 0 0 1 2-2h2a2 2 0 0 1 2 2v2m-9 0 1 12a2 2 0 0 0 2 2h6a2 2 0 0 0 2-2l1-12"/></svg>Clear</button>
+                    </div>
+                </header>
+
+                <div class="chat-container">
+                    <div class="chat-messages" id="chatMessages">
+                        <div class="chat-welcome" id="chatWelcome">
+                            <div class="welcome-icon-wrapper">
+                                <div class="welcome-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="8" width="16" height="11" rx="2"/><path d="M9 8V5a3 3 0 0 1 6 0v3M9 13h.01M15 13h.01"/></svg></div>
+                            </div>
+                            <h3>Assistant</h3>
+                            <div class="status-badge">Ready to chat</div>
+                            <p class="subtitle">Type a message below <span class="kbd">/</span> for commands</p>
+                            
+                            <div class="quick-actions-grid">
+                                <button class="quick-action" onclick="sendQuickAction('What is my system info?')">What is my system info?</button>
+                                <button class="quick-action" onclick="sendQuickAction('List running processes sorted by CPU')">List top processes</button>
+                                <button class="quick-action" onclick="sendQuickAction('Take a screenshot')">Take a screenshot</button>
+                                <button class="quick-action" onclick="sendQuickAction('What is on my clipboard?')">Read clipboard</button>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="chat-input-wrapper">
+                        <div class="chat-input-box">
+                            <div class="input-top">
+                                <button class="icon-btn add-btn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg></button>
+                                <textarea class="chat-input" id="chatInput" placeholder="Message MIA" rows="1" onkeydown="handleChatKeydown(event)" oninput="autoResize(this)"></textarea>
+                                <button class="icon-btn mic-btn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="3" width="6" height="11" rx="3"/><path d="M5 11a7 7 0 0 0 14 0M12 18v3"/></svg></button>
+                                <button class="send-btn" id="sendBtn" onclick="sendMessage()" style="display:none;"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M3 11l18-8-8 18-2-8-8-2z"/></svg></button>
+                            </div>
+                            <div class="input-bottom">
+                                <div class="left-controls">
+                                    <button class="icon-btn small"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.6 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.6a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09A1.65 1.65 0 0 0 15 4.6a1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg></button>
+                                </div>
+                                <div class="right-controls">
+                                    <div class="model-selector">auto · gemini <span class="chevron">⌄</span></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- SETTINGS VIEW -->
+            <div class="view-panel" id="view-settings">
+                <header class="chat-header">
+                    <div class="breadcrumb"><span class="active">Settings &amp; Configuration</span></div>
+                </header>
+                <div class="settings-panel" style="padding: 24px; overflow-y: auto;">
+                    <div id="settingsContent" class="dashboard-grid">
+                        <p style="color:var(--text-dim);">Loading settings...</p>
+                    </div>
+
+                    <h3 class="section-label-lg" style="color:var(--danger);">Error Logs</h3>
+                    <div id="errorLogsContent" class="dashboard-grid" style="grid-template-columns: 1fr;">
+                        <p style="color:var(--text-dim);">No errors logged.</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- SCREEN VIEW -->
+            <div class="view-panel" id="view-screen">
+                <header class="chat-header">
+                    <div class="breadcrumb"><span class="active">Screen Stream</span></div>
+                </header>
+                <div class="screen-panel" id="screenPanel">
+                    <div class="screen-toolbar">
+                        <div class="screen-toolbar-group">
+                            <button class="screen-toggle-btn" id="streamToggle" onclick="toggleStream()"><svg viewBox="0 0 24 24" fill="currentColor" style="width:11px;height:11px;"><path d="M6 4l14 8-14 8V4z"/></svg>Start Stream</button>
+                            <button class="screen-toggle-btn" id="controlToggle" onclick="toggleControl()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" style="width:13px;height:13px;"><path d="M12 2a5 5 0 0 0-5 5v10a5 5 0 0 0 10 0V7a5 5 0 0 0-5-5zM12 2v6"/></svg>Control: OFF</button>
+                        </div>
+                        <div class="screen-toolbar-group">
+                            <label>Monitor:</label>
+                            <select id="monitorSelect" onchange="setStreamMonitor(this.value)" title="Select which monitor to view">
+                                <option value="1">Monitor 1</option>
+                            </select>
+                        </div>
+                        <div class="screen-toolbar-group">
+                            <label>Quality:</label>
+                            <input type="range" id="qualitySlider" min="10" max="100" value="50" onchange="setStreamQuality(this.value)">
+                            <label>Scale:</label>
+                            <select id="scaleSelect" onchange="setStreamScale(this.value)">
+                                <option value="1.0">100%</option>
+                                <option value="0.75">75%</option>
+                                <option value="0.5" selected>50%</option>
+                                <option value="0.25">25%</option>
+                            </select>
+                        </div>
+                        <div class="screen-toolbar-group">
+                            <span class="screen-stat fps" id="fpsCounter">0 FPS</span>
+                            <span class="screen-stat status" id="streamStatus">Stopped</span>
+                            <button class="screen-toggle-btn" onclick="toggleFullscreen()" title="Fullscreen"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="width:13px;height:13px;"><path d="M8 3H5a2 2 0 0 0-2 2v3m18 0V5a2 2 0 0 0-2-2h-3M3 16v3a2 2 0 0 0 2 2h3m11-5v3a2 2 0 0 1-2 2h-3"/></svg></button>
+                        </div>
+                    </div>
+                    <div class="screen-viewer" id="screenViewer">
+                        <div class="no-stream" id="noStreamMsg">
+                            <span class="icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round" style="width:48px;height:48px;"><rect x="2" y="4" width="20" height="13" rx="1.5"/><path d="M8 21h8M12 17v4"/></svg></span>
+                            <p>Click "Start Stream" to view</p>
+                        </div>
+                        <img id="screenImage" style="display:none;" alt="Screen">
+                    </div>
+                </div>
+            </div>
+
+            <!-- FILES VIEW -->
+            <div class="view-panel" id="view-files">
+                <header class="chat-header">
+                    <div class="breadcrumb"><span class="active">File Manager</span></div>
+                </header>
+                <div class="files-panel">
+                    <div class="files-toolbar">
+                        <button class="header-btn" onclick="navigateUp()" title="Up one level"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="width:14px;height:14px;"><path d="M12 19V5M5 12l7-7 7 7"/></svg></button>
+                        <div class="path-breadcrumb" id="pathBreadcrumb"></div>
+                        <button class="header-btn" onclick="document.getElementById('fileUpload').click()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="width:13px;height:13px;vertical-align:-2px;margin-right:5px;"><path d="M12 16V4M6 10l6-6 6 6M4 20h16"/></svg>Upload</button>
+                        <input type="file" id="fileUpload" style="display:none" onchange="uploadFile(this)" multiple>
+                        <button class="header-btn" onclick="refreshFiles()" title="Refresh"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="width:14px;height:14px;"><path d="M3 12a9 9 0 0 1 15.4-6.36L21 8M3 12a9 9 0 0 0 15.4 6.36L21 16M21 8v-5m0 5h-5M3 16v5m0-5h5"/></svg></button>
+                    </div>
+                    <div class="files-list" id="filesList"></div>
+                </div>
+            </div>
+
+            <!-- MONITOR VIEW -->
+            <div class="view-panel" id="view-monitor">
+                <header class="chat-header">
+                    <div class="breadcrumb"><span class="active">System Monitor</span></div>
+                </header>
+                <div class="dashboard-panel" id="dashboardPanel">
+                    <div class="dashboard-grid" id="dashboardGrid">
+                        <div class="stat-card" id="cpuCard">
+                            <div class="stat-card-header"><span class="stat-card-title">CPU</span><span class="stat-card-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="6" y="6" width="12" height="12" rx="1.5"/><path d="M9 2v3M15 2v3M9 19v3M15 19v3M2 9h3M2 15h3M19 9h3M19 15h3"/></svg></span></div>
+                            <div class="stat-card-value" id="cpuValue">0%</div>
+                            <div class="stat-card-sub" id="cpuSub">Loading...</div>
+                            <div class="progress-bar"><div class="progress-bar-fill" id="cpuBar" style="width: 0%"></div></div>
+                            <div class="cores-grid" id="coresGrid"></div>
+                        </div>
+                        <div class="stat-card" id="ramCard">
+                            <div class="stat-card-header"><span class="stat-card-title">Memory</span><span class="stat-card-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M4 7a1 1 0 0 1 1-1h14a1 1 0 0 1 1 1v10a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V7z"/><path d="M8 6v2M12 6v2M16 6v2M8 16v2M12 16v2M16 16v2"/></svg></span></div>
+                            <div class="stat-card-value" id="ramValue">0%</div>
+                            <div class="stat-card-sub" id="ramSub">Loading...</div>
+                            <div class="progress-bar"><div class="progress-bar-fill" id="ramBar" style="width: 0%"></div></div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-card-header"><span class="stat-card-title">Network</span><span class="stat-card-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3a14 14 0 0 1 0 18 14 14 0 0 1 0-18z"/></svg></span></div>
+                            <div class="stat-card-value" id="netValue">—</div>
+                            <div class="stat-card-sub" id="netSub">Waiting...</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-card-header"><span class="stat-card-title">System</span><span class="stat-card-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="12" rx="1.5"/><path d="M8 20h8M12 16v4"/></svg></span></div>
+                            <div class="stat-card-value" id="sysValue">—</div>
+                            <div class="stat-card-sub" id="sysSub">Loading...</div>
+                        </div>
+                    </div>
+                    <h3 class="section-label-lg">Disk Usage</h3>
+                    <div class="dashboard-grid" id="disksGrid"></div>
+
+                    <h3 class="section-label-lg">Process Manager</h3>
+                    <div class="process-panel" style="flex: none; min-height: 400px; border: 1px solid var(--border); border-radius: var(--radius-lg); overflow: hidden;">
+                        <div class="process-toolbar" style="border-bottom: 1px solid var(--border); background: var(--bg-card); padding: 8px 12px; display: flex; gap: 8px;">
+                            <input class="search-input" id="processSearch" placeholder="Search processes…" oninput="searchProcesses(this.value)">
+                            <select class="search-input" style="max-width:120px" id="processSortBy" onchange="loadProcesses()">
+                                <option value="memory">Sort: Mem</option>
+                                <option value="cpu">Sort: CPU</option>
+                                <option value="name">Sort: Name</option>
+                            </select>
+                            <button class="header-btn" onclick="loadProcesses()" title="Refresh"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="width:14px;height:14px;"><path d="M3 12a9 9 0 0 1 15.4-6.36L21 8M3 12a9 9 0 0 0 15.4 6.36L21 16M21 8v-5m0 5h-5M3 16v5m0-5h5"/></svg></button>
+                        </div>
+                        <div class="process-list" style="max-height: 500px; overflow-y: auto;">
+                            <table class="process-table">
+                                <thead>
+                                    <tr>
+                                        <th>PID</th>
+                                        <th>Name</th>
+                                        <th>CPU</th>
+                                        <th>MEM</th>
+                                        <th></th>
+                                    </tr>
+                                </thead>
+                                <tbody id="processTableBody"></tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- TASKS VIEW -->
+            <div class="view-panel" id="view-tasks">
+                <header class="chat-header">
+                    <div class="breadcrumb"><span class="active">Scheduled Tasks</span></div>
+                </header>
+                <div class="tasks-panel">
+                    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:15px;">
+                        <h3 class="section-label-lg" style="margin:0;">Scheduled Tasks</h3>
+                        <button class="header-btn" onclick="showAddTaskDialog()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" style="width:12px;height:12px;vertical-align:-2px;margin-right:5px;"><path d="M12 5v14M5 12h14"/></svg>Add</button>
+                    </div>
+                    <div id="tasksList"></div>
+                </div>
+            </div>
+
+            <!-- SKILLS VIEW -->
+            <div class="view-panel" id="view-skills">
+                <header class="chat-header">
+                    <div class="breadcrumb"><span class="active">Skills</span></div>
+                    <div class="header-right">
+                        <button class="header-action-btn" onclick="loadSkills()" title="Refresh"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="width:12px;height:12px;vertical-align:-2px;margin-right:5px;"><path d="M3 12a9 9 0 0 1 15.4-6.36L21 8M3 12a9 9 0 0 0 15.4 6.36L21 16M21 8v-5m0 5h-5M3 16v5m0-5h5"/></svg>Refresh</button>
+                    </div>
+                </header>
+                <div class="skills-panel" style="padding: 20px; overflow-y: auto;">
+                    <input class="search-input" id="skillsSearch" placeholder="Search skills…" oninput="searchSkills(this.value)" style="margin-bottom: 16px; width: 100%;">
+                    <div class="dashboard-grid" id="skillsGrid">
+                        <p style="color:var(--text-dim);">Loading skills...</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- TERMINAL VIEW -->
+            <div class="view-panel" id="view-terminal">
+                <header class="chat-header">
+                    <div class="breadcrumb"><span class="active">Terminal</span></div>
+                </header>
+                <div class="terminal-panel">
+                    <div class="terminal-output" id="terminalOutput">
+                        <span class="system">MIA remote terminal — commands run on the host shell.
+</span>
+                    </div>
+                    <div class="terminal-input-area">
+                        <span class="terminal-prompt-symbol">PS&gt;</span>
+                        <input class="terminal-input" id="terminalInput" placeholder="Enter command..." onkeydown="handleTerminalKeydown(event)">
+                    </div>
+                </div>
+            </div>
+            
+        </main>
+    </div>
+
+    <div class="notification-container" id="notificationContainer"></div>
+
+    <!-- Scripts -->
+    <script src="/js/icons.js?v=9"></script>
+    <script src="/js/websocket.js?v=9"></script>
+    <script src="/js/auth.js?v=9"></script>
+    <script src="/js/chat.js?v=9"></script>
+    <script src="/js/screen.js?v=9"></script>
+    <script src="/js/dashboard.js?v=9"></script>
+    <script src="/js/files.js?v=9"></script>
+    <script src="/js/skills.js?v=9"></script>
+    <script src="/js/app.js?v=9"></script>
+    
+    <!-- UI Logic for new layout -->
+    <script>
+        async function loadSettings() {
+            try {
+                const res = await fetch('/api/settings', {
+                    headers: { 'Authorization': `Bearer ${localStorage.getItem('mia_token')}` }
+                });
+                const data = await res.json();
+                const container = document.getElementById('settingsContent');
+                if (container) {
+                    container.innerHTML = `
+                        <div class="stat-card">
+                            <div class="stat-card-header"><span class="stat-card-title">AI Provider</span><span class="stat-card-icon">${ICON.cpu}</span></div>
+                            <div class="stat-card-value">${data.ai_provider.toUpperCase()}</div>
+                            <div class="stat-card-sub" style="margin-top: 8px;">
+                                Gemini Key: ${data.has_gemini_key ? 'Set' : 'Missing'}<br>
+                                OpenAI Key: ${data.has_openai_key ? 'Set' : 'Missing'}<br>
+                                Ollama Model: ${data.ollama_model}
+                            </div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-card-header"><span class="stat-card-title">Telegram Bot</span><span class="stat-card-icon">${ICON.phone}</span></div>
+                            <div class="stat-card-value">${data.has_telegram_token ? 'Connected' : 'Offline'}</div>
+                            <div class="stat-card-sub" style="margin-top: 8px;">Allowed User ID: ${data.telegram_allowed_user || 'None'}</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-card-header"><span class="stat-card-title">Server Info</span><span class="stat-card-icon">${ICON.network}</span></div>
+                            <div class="stat-card-value">${data.host}:${data.port}</div>
+                            <div class="stat-card-sub" style="margin-top: 8px;">Tunnel: ${data.tunnel_hostname}</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-card-header"><span class="stat-card-title">Screen Stream</span><span class="stat-card-icon">${ICON.system}</span></div>
+                            <div class="stat-card-value">${data.screen_resolution}</div>
+                            <div class="stat-card-sub" style="margin-top: 8px;">Target Framerate: ${data.screen_fps} FPS</div>
+                        </div>
+                    `;
+                }
+                
+                // Load errors when settings are opened
+                await loadErrorLogs();
+                
+            } catch (e) {
+                console.error("Failed to load settings", e);
+            }
+        }
+
+        async function loadErrorLogs() {
+            try {
+                const res = await fetch('/api/logs/errors', {
+                    headers: { 'Authorization': `Bearer ${localStorage.getItem('mia_token')}` }
+                });
+                if (!res.ok) return;
+                const logs = await res.json();
+                const container = document.getElementById('errorLogsContent');
+                if (!container) return;
+
+                if (!logs || logs.length === 0) {
+                    container.innerHTML = '<p style="color:var(--text-dim);">No errors logged.</p>';
+                    return;
+                }
+
+                let html = '';
+                logs.forEach(log => {
+                    const date = new Date(log.timestamp).toLocaleString();
+                    html += `
+                    <div class="stat-card state-danger">
+                        <div class="stat-card-header" style="justify-content: space-between;">
+                            <span class="stat-card-title">${log.context}</span>
+                            <span style="font-family: var(--font-mono); font-size: 11px; color: var(--text-dim);">${date}</span>
+                        </div>
+                        <div class="stat-card-value" style="font-size: 14px; margin-top: 8px; font-weight: normal; font-family: var(--font-sans); color: var(--danger);">${log.short_message}</div>
+                        <details style="margin-top: 12px; font-size: 12px;">
+                            <summary style="color: var(--text-dim); cursor: pointer; user-select: none;">Show technical details</summary>
+                            <pre style="margin-top: 8px; padding: 12px; background: var(--bg-deep); border-radius: 6px; overflow-x: auto; color: var(--text-dim); font-family: var(--font-mono);">${log.full_traceback}</pre>
+                        </details>
+                    </div>`;
+                });
+                container.innerHTML = html;
+            } catch (e) {
+                console.error("Failed to load error logs", e);
+            }
+        }
+
+        function switchMainView(viewId) {
+            // Update Activity Bar Tabs
+            document.querySelectorAll('.activity-tab').forEach(tab => {
+                tab.classList.remove('active');
+            });
+            event.currentTarget.classList.add('active');
+            
+            // Toggle Sessions Sidebar (only show if chat is active)
+            const sessionsSidebar = document.getElementById('sessionsSidebar');
+            if (viewId === 'chat') {
+                sessionsSidebar.style.display = 'flex';
+            } else {
+                sessionsSidebar.style.display = 'none';
+            }
+            
+            // Show corresponding main view panel
+            document.querySelectorAll('.view-panel').forEach(panel => {
+                panel.classList.remove('active');
+            });
+            document.getElementById('view-' + viewId).classList.add('active');
+
+            if (typeof onPanelActivate === 'function') {
+                onPanelActivate(viewId);
+            }
+
+            if (viewId === 'settings') {
+                loadSettings();
+            }
+            if (viewId === 'skills' && typeof loadSkills === 'function') {
+                loadSkills();
+            }
+        }
+        
+        // Disable original switchPanel
+        window.switchPanel = function(panelId) {
+            // Keep for backwards compatibility if some script calls it directly
+            const tab = document.querySelector(`.activity-tab[data-view="${panelId}"]`);
+            if(tab) tab.click();
+        };
+        
+        // Auto expand chat textarea
+        function autoResize(el) {
+            el.style.height = 'auto';
+            el.style.height = (el.scrollHeight) + 'px';
+            if(el.value === '') {
+                el.style.height = '24px';
+            }
+            
+            // Show/hide send button based on input
+            const sendBtn = document.getElementById('sendBtn');
+            const micBtn = document.querySelector('.mic-btn');
+            if(el.value.trim().length > 0) {
+                sendBtn.style.display = 'flex';
+                micBtn.style.display = 'none';
+            } else {
+                sendBtn.style.display = 'none';
+                micBtn.style.display = 'flex';
+            }
+        }
+
+        // On page load
+        window.addEventListener('DOMContentLoaded', () => {
+            if (typeof loadSessions === 'function') {
+                loadSessions();
+            }
+        });
+    </script>
+</body>
+</html>
