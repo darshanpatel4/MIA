@@ -1,60 +1,86 @@
-# 🤖 MIA — Multi-model Interactive Agentic-system
+# MIA - Multi-model Interactive Agentic-system
 
-**MIA** is a self-hosted, Multi-model Interactive Agentic-system that gives you full control of your Windows PC from anywhere in the world. 
-
-It acts as an autonomous assistant with full system authority, wrapped in a premium WhatsApp-style glassmorphism interface, securely accessible over the internet via Cloudflare Tunnels.
+MIA is a self-hosted AI agent that gives you full remote control of your Windows PC from anywhere — a premium web interface, backed by an agentic AI brain (Gemini, OpenAI, or local Ollama models) with function calling, accessible over the internet via Cloudflare Tunnels.
 
 ## Features
-- **🧠 Agentic AI Brain**: Powered by Gemini (or OpenAI/Ollama) with function calling.
-- **📺 30 FPS Screen Streaming**: Real-time remote desktop viewer with adaptive quality.
-- **🖱️ Remote Control**: Full mouse and keyboard control directly from your browser.
-- **📁 File Manager**: Browse, upload, download, and manage files remotely.
-- **📊 System Monitor**: Real-time CPU, RAM, Disk, and Network monitoring.
-- **⚙️ Process Manager**: View, search, and kill running processes.
-- **🖥️ Terminal**: Interactive shell for raw command execution.
-- **⏰ Task Scheduler**: Schedule one-time or recurring (cron) tasks.
-- **🔒 Secure**: Password + JWT session authentication.
 
----
+- **Agentic AI Brain** — Gemini, OpenAI, or Ollama with function calling and a plugin-based tool system
+- **Skills** — drop-in `SKILL.md` capabilities the agent can read and use, installable/listable/removable from chat
+- **Screen Streaming** — real-time remote desktop viewer with adjustable quality/scale, and full multi-monitor support
+- **Remote Control** — mouse and keyboard control directly from the browser
+- **File Manager** — browse, upload, download, and manage files remotely
+- **System Monitor** — live CPU, RAM, disk, and network stats
+- **Process Manager** — view, search, and kill running processes
+- **Terminal** — interactive shell for raw command execution
+- **Task Scheduler** — one-time or recurring (cron) tasks
+- **Telegram Channel** — talk to the same agent from Telegram
+- **Auth** — password + JWT session authentication
 
-## 🚀 Quick Start (Windows)
+## Architecture
 
-### Prerequisites
-1. **Python 3.10+** installed and added to PATH.
-2. A free API key from Google AI Studio (if using Gemini).
+- **Backend**: FastAPI (Python)
+- **AI Core**: Google GenAI SDK / OpenAI SDK (agentic loop with streaming function calling)
+- **Real-time**: WebSockets (screen stream, system stats, terminal, chat, notifications)
+- **Screen Capture**: mss + OpenCV
+- **Frontend**: Vanilla HTML/CSS/JS (zero-build SPA)
+- **Connectivity**: Cloudflare Tunnels (`cloudflared`)
 
-### Installation & Setup
+## Requirements
 
-1. Open PowerShell and navigate to the MIA directory:
+- Windows 10/11 (screen capture, input control, and process management use Windows APIs)
+- Python 3.10+
+- An API key from [Google AI Studio](https://aistudio.google.com/) (free tier) if using Gemini — or an OpenAI key, or a local [Ollama](https://ollama.com/) install
+
+## Quick Start
+
+1. Clone the repository and enter the project folder:
    ```powershell
-   cd "C:\Users\DELL2\Desktop\Coding\Agentic AI"
+   git clone https://github.com/darshanpatel4/MIA.git
+   cd MIA
    ```
+   (If you cloned somewhere else, `cd` into wherever that command put it — every step below runs from that folder, whatever your username or drive letter is.)
 
 2. Run the interactive setup script:
    ```powershell
    .\scripts\setup.ps1
    ```
-   *Follow the prompts to select your AI model, enter your API key, and set a secure login password.*
+   Installs dependencies, then prompts you to pick an AI provider, enter its API key, and set a login password — writing everything to a new `.env` file.
 
 3. Start the server:
    ```powershell
    .\scripts\start.ps1
    ```
-   *The script will ask if you want to use a Cloudflare Quick Tunnel. If you answer `y`, it will automatically generate a public internet URL (e.g., `https://something.trycloudflare.com`) that you can use to access MIA from your phone or another PC without needing a domain name!*
+   You'll be asked whether to start a Cloudflare Quick Tunnel. Answer `y` to get a public URL (e.g. `https://something.trycloudflare.com`) you can open from your phone or another PC — no domain required.
 
----
+4. Open the printed URL (or `http://localhost:8765` if running locally) and log in with the password you set in step 2.
 
-## 🏗️ Architecture
-MIA is built using a modern, performant stack:
-- **Backend**: FastAPI (Python)
-- **AI Core**: Google GenAI SDK (Function Calling Agentic Loop)
-- **Real-time**: WebSockets (Screen stream, System stats, Terminal, Notifications)
-- **Screen Capture**: MSS + OpenCV
-- **Frontend**: Vanilla HTML/CSS/JS (Zero-build SPA)
-- **Connectivity**: Cloudflare Tunnels (`cloudflared`)
+## Configuration
 
-## 🛡️ Security Warning
-**This application grants FULL ADMINISTRATIVE CONTROL over your PC.**
-- Do not share your Quick Tunnel URL with anyone.
-- Use a strong password during setup.
-- For long-term deployment, it is highly recommended to use a custom domain with Cloudflare Access (Zero Trust) for additional authentication layers (SSO, OTP, Email Auth).
+Setup writes these to `.env` (see `.env.example` for the full list with comments):
+
+| Variable | Purpose |
+|---|---|
+| `AI_PROVIDER` | `gemini`, `openai`, or `ollama` |
+| `GEMINI_API_KEY` / `OPENAI_API_KEY` | API key for the selected provider |
+| `OLLAMA_BASE_URL` / `OLLAMA_MODEL` | Local Ollama endpoint and model, if used |
+| `MIA_PASSWORD` | Login password |
+| `JWT_SECRET` | Session signing secret (auto-generated) |
+| `TELEGRAM_BOT_TOKEN` / `ALLOWED_TELEGRAM_USER_ID` | Optional Telegram channel |
+| `SCREEN_FPS` / `SCREEN_QUALITY` | Screen stream tuning |
+
+## Security Warning
+
+**This application grants full administrative control over your PC to whoever holds a valid login token.**
+
+- Never share your tunnel URL or login password.
+- Use a strong, unique password — this is your only line of defense.
+- For long-term/public deployment, put a custom domain behind Cloudflare Access (Zero Trust) for a second authentication layer (SSO, OTP, email auth) in front of MIA's own login.
+- Treat `.env` as a secret file — it is already excluded via `.gitignore`, but never commit it or paste its contents anywhere.
+
+## Contributing
+
+Issues and pull requests are welcome. If you're adding a new agent tool, follow the existing pattern in `server/plugins/*.py`; if you're adding a skill, drop a `SKILL.md` under `data/skills/<name>/`.
+
+## License
+
+Apache License 2.0 — see [LICENSE](LICENSE).
