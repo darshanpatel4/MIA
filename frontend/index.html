@@ -5,10 +5,11 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>MIA — Personal AI Agent</title>
     <meta name="description" content="MIA: Your personal AI agent with full PC control, accessible from anywhere.">
-    <link rel="stylesheet" href="/css/main.css?v=9">
-    <link rel="stylesheet" href="/css/chat.css?v=9">
-    <link rel="stylesheet" href="/css/screen.css?v=9">
-    <link rel="stylesheet" href="/css/dashboard.css?v=9">
+    <link rel="stylesheet" href="/css/main.css?v=13">
+    <link rel="stylesheet" href="/css/chat.css?v=13">
+    <link rel="stylesheet" href="/css/screen.css?v=13">
+    <link rel="stylesheet" href="/css/dashboard.css?v=13">
+    <link rel="stylesheet" href="/css/providers.css?v=13">
 </head>
 <body>
     <div class="app" id="app">
@@ -118,7 +119,7 @@
                                     <button class="icon-btn small"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.6 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.6a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09A1.65 1.65 0 0 0 15 4.6a1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg></button>
                                 </div>
                                 <div class="right-controls">
-                                    <div class="model-selector">auto · gemini <span class="chevron">⌄</span></div>
+                                    <div class="model-selector" id="modelSelector" onclick="switchMainView('settings')" title="Change model">model <span class="chevron">⌄</span></div>
                                 </div>
                             </div>
                         </div>
@@ -132,6 +133,12 @@
                     <div class="breadcrumb"><span class="active">Settings &amp; Configuration</span></div>
                 </header>
                 <div class="settings-panel" style="padding: 24px; overflow-y: auto;">
+                    <h3 class="section-label-lg" style="margin-top:0;">AI Models</h3>
+                    <div id="providersContent">
+                        <p style="color:var(--text-dim);">Loading models...</p>
+                    </div>
+
+                    <h3 class="section-label-lg">System</h3>
                     <div id="settingsContent" class="dashboard-grid">
                         <p style="color:var(--text-dim);">Loading settings...</p>
                     </div>
@@ -273,9 +280,18 @@
                     <div class="breadcrumb"><span class="active">Scheduled Tasks</span></div>
                 </header>
                 <div class="tasks-panel">
-                    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:15px;">
-                        <h3 class="section-label-lg" style="margin:0;">Scheduled Tasks</h3>
-                        <button class="header-btn" onclick="showAddTaskDialog()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" style="width:12px;height:12px;vertical-align:-2px;margin-right:5px;"><path d="M12 5v14M5 12h14"/></svg>Add</button>
+                    <h3 class="section-label-lg" style="margin-top:0;">New task</h3>
+                    <div class="auto-new">
+                        <textarea id="newTaskText" class="provider-input auto-textarea" rows="2" placeholder="Describe it in plain language, e.g. &quot;Every weekday at 8am, check my email and send me a summary on Telegram&quot;" onkeydown="if (event.key === 'Enter' &amp;&amp; !event.shiftKey) { event.preventDefault(); createTaskWithMia(); }"></textarea>
+                        <button class="provider-btn primary" onclick="createTaskWithMia()">Create with MIA</button>
+                    </div>
+
+                    <h3 class="section-label-lg">Heartbeat</h3>
+                    <div id="heartbeatCard"></div>
+
+                    <div style="display:flex;justify-content:space-between;align-items:center;">
+                        <h3 class="section-label-lg">Scheduled Tasks</h3>
+                        <button class="header-btn" onclick="loadTasks()">Refresh</button>
                     </div>
                     <div id="tasksList"></div>
                 </div>
@@ -320,19 +336,22 @@
     <div class="notification-container" id="notificationContainer"></div>
 
     <!-- Scripts -->
-    <script src="/js/icons.js?v=9"></script>
-    <script src="/js/websocket.js?v=9"></script>
-    <script src="/js/auth.js?v=9"></script>
-    <script src="/js/chat.js?v=9"></script>
-    <script src="/js/screen.js?v=9"></script>
-    <script src="/js/dashboard.js?v=9"></script>
-    <script src="/js/files.js?v=9"></script>
-    <script src="/js/skills.js?v=9"></script>
-    <script src="/js/app.js?v=9"></script>
+    <script src="/js/icons.js?v=13"></script>
+    <script src="/js/websocket.js?v=13"></script>
+    <script src="/js/auth.js?v=13"></script>
+    <script src="/js/chat.js?v=13"></script>
+    <script src="/js/screen.js?v=13"></script>
+    <script src="/js/dashboard.js?v=13"></script>
+    <script src="/js/files.js?v=13"></script>
+    <script src="/js/skills.js?v=13"></script>
+    <script src="/js/providers.js?v=13"></script>
+    <script src="/js/automations.js?v=13"></script>
+    <script src="/js/app.js?v=13"></script>
     
     <!-- UI Logic for new layout -->
     <script>
         async function loadSettings() {
+            loadProviders();
             try {
                 const res = await fetch('/api/settings', {
                     headers: { 'Authorization': `Bearer ${localStorage.getItem('mia_token')}` }
@@ -341,15 +360,6 @@
                 const container = document.getElementById('settingsContent');
                 if (container) {
                     container.innerHTML = `
-                        <div class="stat-card">
-                            <div class="stat-card-header"><span class="stat-card-title">AI Provider</span><span class="stat-card-icon">${ICON.cpu}</span></div>
-                            <div class="stat-card-value">${data.ai_provider.toUpperCase()}</div>
-                            <div class="stat-card-sub" style="margin-top: 8px;">
-                                Gemini Key: ${data.has_gemini_key ? 'Set' : 'Missing'}<br>
-                                OpenAI Key: ${data.has_openai_key ? 'Set' : 'Missing'}<br>
-                                Ollama Model: ${data.ollama_model}
-                            </div>
-                        </div>
                         <div class="stat-card">
                             <div class="stat-card-header"><span class="stat-card-title">Telegram Bot</span><span class="stat-card-icon">${ICON.phone}</span></div>
                             <div class="stat-card-value">${data.has_telegram_token ? 'Connected' : 'Offline'}</div>
@@ -478,6 +488,7 @@
             if (typeof loadSessions === 'function') {
                 loadSessions();
             }
+            refreshModelSelector();
         });
     </script>
 </body>

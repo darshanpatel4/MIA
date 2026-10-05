@@ -511,3 +511,112 @@
     padding: 0;
     line-height: 1;
 }
+
+/* ── Automations (scheduled tasks + heartbeat) ───────────── */
+.auto-new {
+    display: flex;
+    gap: 10px;
+    align-items: stretch;
+    flex-wrap: wrap;
+}
+.auto-new .auto-textarea { flex: 1 1 320px; }
+.auto-textarea {
+    resize: vertical;
+    font-family: var(--font-sans);
+    line-height: 1.5;
+}
+.auto-checklist {
+    font-family: var(--font-mono);
+    font-size: 12.5px;
+    width: 100%;
+    box-sizing: border-box;
+}
+.auto-title {
+    display: flex;
+    align-items: baseline;
+    flex-wrap: wrap;
+    gap: 4px 10px;
+    min-width: 0;
+}
+.auto-kind {
+    font-size: 11.5px;
+    color: var(--text-dim);
+}
+.auto-pill {
+    font-family: var(--font-mono);
+    font-size: 10.5px;
+    letter-spacing: 0.8px;
+    text-transform: uppercase;
+    padding: 3px 9px;
+    border-radius: 999px;
+    border: 1px solid var(--border-strong);
+    color: var(--text-muted);
+    white-space: nowrap;
+}
+.auto-pill.active { color: var(--success); border-color: rgba(79, 196, 154, 0.4); }
+.auto-pill.running { color: var(--accent-ink); background: var(--accent); border-color: var(--accent); }
+.auto-pill.paused { color: var(--warning); border-color: rgba(224, 178, 60, 0.4); }
+.auto-pill.missed { color: var(--danger); border-color: rgba(226, 96, 79, 0.4); }
+.auto-instructions {
+    font-size: 13.5px;
+    line-height: 1.5;
+    color: var(--text);
+    overflow-wrap: anywhere;
+}
+.auto-meta { flex-wrap: wrap; gap: 6px 16px; }
+.auto-warn { color: var(--warning); }
+.auto-last { margin-top: 10px; }
+.auto-last-summary {
+    cursor: pointer;
+    font-size: 12.5px;
+    color: var(--text-dim);
+}
+.auto-last-summary.done { color: var(--success); }
+.auto-last-summary.failed { color: var(--danger); }
+.auto-last-summary.waiting_approval { color: var(--warning); }
+.auto-result {
+    margin: 8px 0 0;
+    max-height: 240px;
+    overflow: auto;
+    padding: 10px 12px;
+    background: rgba(0, 0, 0, 0.2);
+    border-radius: 6px;
+    font-family: var(--font-sans);
+    font-size: 13px;
+    line-height: 1.5;
+    white-space: pre-wrap;
+    overflow-wrap: anywhere;
+}
+.auto-history {
+    margin-top: 6px;
+    font-size: 12px;
+    color: var(--text-muted);
+    display: grid;
+    gap: 2px;
+}
+.auto-actions {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 10px;
+    margin-top: 12px;
+}
+.auto-hb-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(min(160px, 100%), 1fr));
+    gap: 10px;
+    margin: 6px 0 12px;
+}
+.auto-field {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    min-width: 0;
+}
+.auto-empty {
+    text-align: center;
+    padding: 36px 20px;
+    color: var(--text-dim);
+}
+.auto-hint { font-size: 13px; margin-top: 8px; }

@@ -34,14 +34,15 @@ def read_file(file_path: str, max_chars: int = 10000) -> str:
 
 @tool(
     name="write_file",
-    description="Write content to a file. Creates it if it doesn't exist.",
+    description="Write content to a file. Creates it if it doesn't exist. Replacing or removing existing lines needs the user's approval, so pass `reason` when changing an existing file.",
     parameters={
         "file_path": {"type": "string", "description": "Path to the file"},
-        "content": {"type": "string", "description": "Content to write"}
+        "content": {"type": "string", "description": "Content to write"},
+        "reason": {"type": "string", "description": "When changing an existing file: what the removed/replaced lines do and why they must change"}
     },
     required=["file_path", "content"]
 )
-def write_file(file_path: str, content: str) -> str:
+def write_file(file_path: str, content: str, reason: str = "") -> str:
     """Write content to a file (creates it if it doesn't exist)."""
     try:
         path = Path(file_path)
@@ -98,13 +99,14 @@ def list_directory(dir_path: str = ".") -> str:
 
 @tool(
     name="delete_file",
-    description="Delete a file or directory. Use with caution!",
+    description="Delete a file or directory. Always needs the user's approval; the item is moved to MIA's trash.",
     parameters={
-        "file_path": {"type": "string", "description": "Path to delete"}
+        "file_path": {"type": "string", "description": "Path to delete"},
+        "reason": {"type": "string", "description": "What this file/folder is and why it should be deleted"}
     },
-    required=["file_path"]
+    required=["file_path", "reason"]
 )
-def delete_file(file_path: str) -> str:
+def delete_file(file_path: str, reason: str = "") -> str:
     """Delete a file or directory."""
     try:
         path = Path(file_path)
@@ -121,14 +123,15 @@ def delete_file(file_path: str) -> str:
 
 @tool(
     name="move_file",
-    description="Move or rename a file/directory.",
+    description="Move or rename a file/directory. Replacing an existing item at the destination needs the user's approval.",
     parameters={
         "source": {"type": "string", "description": "Source path"},
-        "destination": {"type": "string", "description": "Destination path"}
+        "destination": {"type": "string", "description": "Destination path"},
+        "reason": {"type": "string", "description": "Needed if the destination already exists: what gets replaced and why"}
     },
     required=["source", "destination"]
 )
-def move_file(source: str, destination: str) -> str:
+def move_file(source: str, destination: str, reason: str = "") -> str:
     """Move or rename a file/directory."""
     try:
         shutil.move(source, destination)

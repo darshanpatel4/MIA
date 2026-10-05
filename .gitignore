@@ -17,8 +17,15 @@ Logs/*.log
 # Runtime data — generated at runtime, not source
 data/sessions/*.json
 data/memory.json
+data/memory_embeddings.json
+data/conversation_index.json
 data/error_log.json
 data/screenshots/
+data/self_mod/
+data/dynamic_tools/
+data/bin/
+data/automations.json
+data/heartbeat.md
 
 # Editor / OS
 .vscode/

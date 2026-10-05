@@ -13,6 +13,7 @@ function initChat() {
 
     chatWS.on('open', () => {
         updateConnectionStatus(true);
+        loadPendingApprovals();
     });
 
     chatWS.on('close', () => {
@@ -43,6 +44,10 @@ function initChat() {
                 showThinking(false);
                 discardStreamingMessage();
                 addMessage('assistant', `❌ ${data.message}`);
+            } else if (data.type === 'approval_request') {
+                renderApprovalCard(data.request);
+            } else if (data.type === 'approval_resolved') {
+                markApprovalResolved(data.request_id, data.request, data.result);
             } else if (data.type === 'notification') {
                 showNotification(data.title, data.message, data.level);
             }
@@ -288,6 +293,132 @@ function updateConnectionStatus(connected) {
         btn.classList.toggle('offline', !connected);
         btn.title = connected ? 'Connected' : 'Disconnected';
     }
+}
+
+// ── Approvals ───────────────────────────────────────────────────────────
+// MIA pauses before removing lines, deleting, overwriting, or sending/posting.
+// Cards are built with textContent only — diffs and reasons are untrusted text.
+
+const APPROVAL_KIND_LABELS = {
+    edit: 'Removes code or text',
+    delete: 'Deletes',
+    overwrite: 'Overwrites',
+    command: 'Destructive command',
+    send: 'Cannot be undone',
+};
+
+function el(tag, className, text) {
+    const node = document.createElement(tag);
+    if (className) node.className = className;
+    if (text !== undefined && text !== null) node.textContent = text;
+    return node;
+}
+
+async function loadPendingApprovals() {
+    try {
+        const res = await fetch('/api/approvals', {
+            headers: { 'Authorization': `Bearer ${localStorage.getItem('mia_token')}` }
+        });
+        if (!res.ok) return;
+        const pending = await res.json();
+        pending.forEach(renderApprovalCard);
+    } catch (e) {
+        console.error('Failed to load pending approvals', e);
+    }
+}
+
+function renderApprovalCard(request) {
+    if (!request || document.getElementById(`approval-${request.id}`)) return;
+
+    const container = document.getElementById('chatMessages');
+    const welcome = document.getElementById('chatWelcome');
+    if (welcome) welcome.style.display = 'none';
+
+    const msgDiv = el('div', 'message assistant approval-message');
+    msgDiv.id = `approval-${request.id}`;
+    const avatar = el('div', 'message-avatar');
+    avatar.innerHTML = ICON.lock;
+    const body = el('div', 'message-body');
+    const card = el('div', `approval-card kind-${request.kind || 'edit'}`);
+
+    const head = el('div', 'approval-head');
+    head.append(
+        el('span', 'approval-tag', 'Needs your approval'),
+        el('span', 'approval-kind', APPROVAL_KIND_LABELS[request.kind] || request.kind),
+        el('span', 'approval-id', `#${request.id}`),
+    );
+    card.append(head, el('div', 'approval-title', request.title));
+
+    if (request.reason) {
+        const reason = el('div', 'approval-reason');
+        reason.append(el('span', 'approval-label', 'Why'), el('span', null, request.reason));
+        card.append(reason);
+    }
+
+    const details = request.details || {};
+    const facts = el('dl', 'approval-facts');
+    Object.entries(details).forEach(([key, value]) => {
+        if (key === 'diff') return;
+        facts.append(el('dt', null, key.replace(/_/g, ' ')), el('dd', null, String(value)));
+    });
+    if (facts.children.length) card.append(facts);
+
+    if (details.diff) {
+        const diff = el('pre', 'approval-diff');
+        details.diff.split('\n').forEach(line => {
+            let cls = 'ctx';
+            if (line.startsWith('+++') || line.startsWith('---')) cls = 'file';
+            else if (line.startsWith('@@')) cls = 'hunk';
+            else if (line.startsWith('+')) cls = 'add';
+            else if (line.startsWith('-')) cls = 'del';
+            diff.append(el('span', `diff-line ${cls}`, line || ' '));
+        });
+        card.append(diff);
+    }
+
+    const actions = el('div', 'approval-actions');
+    const approveBtn = el('button', 'approval-btn approve', 'Approve');
+    const rejectBtn = el('button', 'approval-btn reject', 'Reject');
+    approveBtn.onclick = () => decideApproval(request.id, true);
+    rejectBtn.onclick = () => decideApproval(request.id, false);
+    actions.append(approveBtn, rejectBtn);
+
+    const status = el('div', 'approval-status');
+    status.hidden = true;
+    card.append(actions, status);
+
+    body.append(card);
+    msgDiv.append(avatar, body);
+    container.appendChild(msgDiv);
+
+    const dynamicThinking = document.getElementById('dynamicThinking');
+    if (dynamicThinking) container.appendChild(dynamicThinking);
+    container.scrollTop = container.scrollHeight;
+}
+
+function decideApproval(requestId, approved) {
+    const msg = document.getElementById(`approval-${requestId}`);
+    if (!msg) return;
+    msg.querySelectorAll('.approval-btn').forEach(btn => btn.disabled = true);
+    const status = msg.querySelector('.approval-status');
+    status.hidden = false;
+    status.textContent = approved ? 'Approving…' : 'Rejecting…';
+    chatWS.sendJSON({ type: 'approval_decision', request_id: requestId, approved });
+}
+
+function markApprovalResolved(requestId, request, result) {
+    const msg = document.getElementById(`approval-${requestId}`);
+    if (!msg) return;
+    const state = request ? request.status : 'failed';
+    const labels = { done: 'Approved', failed: 'Approved, but it failed', rejected: 'Rejected', expired: 'Expired' };
+
+    const actions = msg.querySelector('.approval-actions');
+    if (actions) actions.remove();
+    msg.querySelector('.approval-card').classList.add(`resolved-${state}`);
+    const status = msg.querySelector('.approval-status');
+    status.hidden = false;
+    status.textContent = '';
+    status.append(el('strong', null, labels[state] || state), el('span', null, result ? ` · ${result}` : ''));
 }
 
 // ── Session Management ──────────────────────────────────────────────────

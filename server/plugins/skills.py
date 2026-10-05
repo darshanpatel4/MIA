@@ -47,11 +47,12 @@ def get_skills_index() -> list[dict]:
     description="Download and install a skill (markdown file) from a direct URL. It will be saved as SKILL.md inside a folder named after the skill.",
     parameters={
         "url": {"type": "string", "description": "The raw URL of the markdown file to download"},
-        "skill_name": {"type": "string", "description": "The name of the skill (e.g., 'github', 'python-debug')"}
+        "skill_name": {"type": "string", "description": "The name of the skill (e.g., 'github', 'python-debug')"},
+        "reason": {"type": "string", "description": "Needed when replacing an already-installed skill: why it should be replaced"}
     },
     required=["url", "skill_name"]
 )
-def install_skill_from_url(url: str, skill_name: str) -> str:
+def install_skill_from_url(url: str, skill_name: str, reason: str = "") -> str:
     """Download a skill file from a URL and save it to data/skills/{skill_name}/SKILL.md."""
     try:
         skill_dir = SKILLS_DIR / skill_name
@@ -110,13 +111,14 @@ def read_skill(skill_name: str) -> str:
 
 @tool(
     name="uninstall_skill",
-    description="Remove/uninstall a skill by its name.",
+    description="Remove/uninstall a skill by its name. Needs the user's approval; the skill is moved to MIA's trash.",
     parameters={
-        "skill_name": {"type": "string", "description": "The name of the skill to remove (e.g., 'github')"}
+        "skill_name": {"type": "string", "description": "The name of the skill to remove (e.g., 'github')"},
+        "reason": {"type": "string", "description": "What the skill does and why it should be removed"}
     },
-    required=["skill_name"]
+    required=["skill_name", "reason"]
 )
-def uninstall_skill(skill_name: str) -> str:
+def uninstall_skill(skill_name: str, reason: str = "") -> str:
     """Remove a skill folder from the data/skills directory."""
     try:
         skill_dir = SKILLS_DIR / skill_name

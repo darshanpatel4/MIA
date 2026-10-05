@@ -13,6 +13,7 @@ from server.services.input_control import input_controller
 from server.services.system_monitor import system_monitor
 from server.services.command_runner import command_runner
 from server.services.notifications import notifications
+from server.selfmod.approvals import approvals
 
 router = APIRouter()
 
@@ -35,6 +36,11 @@ async def ws_chat(websocket: WebSocket):
     try:
         while True:
             data = await websocket.receive_json()
+
+            if data.get("type") == "approval_decision":
+                await _handle_approval_decision(websocket, data)
+                continue
+
             message = data.get("message", "")
             session_id = data.get("session_id", "default")
 
@@ -63,6 +69,28 @@ async def ws_chat(websocket: WebSocket):
         print(f"  Chat WS error: {e}")
     finally:
         notifications.remove_client(websocket)
+
+
+async def _handle_approval_decision(websocket: WebSocket, data: dict):
+    """The user clicked Approve/Reject on an approval card: run (or drop) the action, then let MIA continue."""
+    request_id = str(data.get("request_id", ""))
+    outcome = approvals.resolve(request_id, bool(data.get("approved")), via="web")
+    request = outcome["request"]
+    await websocket.send_json({
+        "type": "approval_resolved",
+        "request_id": request_id,
+        "request": approvals.public(request) if request else None,
+        "result": outcome["result"],
+    })
+    if not outcome["handled_now"]:
+        return
+
+    await websocket.send_json({"type": "status", "status": "thinking"})
+    try:
+        async for stream_event in agent.stream_chat(approvals.followup_message(request), request["session_id"]):
+            await websocket.send_json(stream_event)
+    except Exception as e:
+        await websocket.send_json({"type": "error", "message": f"Agent error: {str(e)}"})
 
 
 # ── Screen Streaming WebSocket ───────────────────────────────

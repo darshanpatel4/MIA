@@ -251,72 +251,7 @@ function handleTerminalKeydown(event) {
     }
 }
 
-// ── Tasks ───────────────────────────────────────────────────
-
-async function loadTasks() {
-    try {
-        const tasks = await apiFetch('/api/tasks');
-        renderTasks(tasks);
-    } catch (e) {
-        console.error('Failed to load tasks:', e);
-    }
-}
-
-function renderTasks(tasks) {
-    const container = document.getElementById('tasksList');
-    if (tasks.length === 0) {
-        container.innerHTML = `
-            <div style="text-align:center;padding:60px 20px;color:var(--text-dim)">
-                <div class="empty-state-icon">${ICON.clock}</div>
-                <p>No scheduled tasks yet</p>
-                <p style="font-size:13px;margin-top:8px">Use the chat to schedule tasks, e.g., "Run disk cleanup at 3am"</p>
-            </div>
-        `;
-        return;
-    }
-
-    container.innerHTML = tasks.map(task => {
-        const statusClass = task.status === 'active' || task.status === 'pending'
-            ? 'badge-success' : task.status === 'completed' ? 'badge-info' : 'badge-warning';
-        return `
-            <div class="task-card">
-                <div class="task-card-header">
-                    <span class="task-name">${task.name}</span>
-                    <span class="task-status ${statusClass}">${task.status}</span>
-                </div>
-                <div class="task-command">${escapeHtml(task.command)}</div>
-                <div class="task-meta">
-                    <span>${task.type === 'recurring' ? 'Cron: ' + task.cron : 'At: ' + task.scheduled_at}</span>
-                    ${task.last_run ? `<span>Last: ${new Date(task.last_run).toLocaleString()}</span>` : ''}
-                    ${task.run_count ? `<span>Runs: ${task.run_count}</span>` : ''}
-                </div>
-            </div>
-        `;
-    }).join('');
-}
-
-function showAddTaskDialog() {
-    const cmd = prompt('Command to schedule:');
-    if (!cmd) return;
-    const schedule = prompt('Schedule (ISO datetime like 2024-01-15T14:30:00 or cron like */5 * * * *):');
-    if (!schedule) return;
-    const name = prompt('Task name (optional):', '');
-
-    const isCron = schedule.includes('*') || schedule.split(' ').length === 5;
-
-    apiFetch('/api/tasks', {
-        method: 'POST',
-        body: JSON.stringify({
-            command: cmd,
-            schedule: schedule,
-            name: name || undefined,
-            type: isCron ? 'recurring' : 'one_time',
-        }),
-    }).then(result => {
-        showNotification('Scheduler', result.message || result.error, result.success ? 'success' : 'error');
-        loadTasks();
-    });
-}
+// Tasks & heartbeat live in automations.js
 
 // ── Utilities ───────────────────────────────────────────────
 

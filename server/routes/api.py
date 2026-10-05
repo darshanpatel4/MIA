@@ -5,7 +5,7 @@ MIA REST API Routes — Core HTTP endpoints.
 import os
 import aiofiles
 from pathlib import Path
-from fastapi import APIRouter, Depends, UploadFile, File, Query, Request
+from fastapi import APIRouter, Depends, UploadFile, File, Query, Request, HTTPException
 from fastapi.responses import FileResponse
 
 from server.auth import require_auth
@@ -20,6 +20,7 @@ from server.services.notifications import notifications
 from server.services.error_logger import error_logger
 from server.agent.memory import memory
 from server.plugins.skills import get_skills_index
+from server.selfmod.approvals import approvals
 from pydantic import BaseModel
 from typing import Optional
 
@@ -40,6 +41,16 @@ class CommandRequest(BaseModel):
     shell: str = "powershell"
     timeout: int = 30
 
+class TaskEnabledRequest(BaseModel):
+    enabled: bool
+
+class HeartbeatRequest(BaseModel):
+    enabled: Optional[bool] = None
+    every_minutes: Optional[int] = None
+    active_hours: Optional[str] = None
+    deliver_to: Optional[list[str]] = None
+    checklist: Optional[str] = None
+
 class TaskRequest(BaseModel):
     command: str
     schedule: str  # ISO datetime or cron expression
@@ -52,6 +63,31 @@ class RenameRequest(BaseModel):
 class CreateDirRequest(BaseModel):
     path: str
 
+class ApiKeyRequest(BaseModel):
+    api_key: str
+
+class ActiveModelRequest(BaseModel):
+    provider: str
+    model: Optional[str] = None
+
+class ProviderTestRequest(BaseModel):
+    model: Optional[str] = None
+
+class OpenRouterStartRequest(BaseModel):
+    callback_url: Optional[str] = None
+
+class OpenRouterFinishRequest(BaseModel):
+    code: str
+
+class ClaudeAuthModeRequest(BaseModel):
+    mode: str
+
+class ClaudeLoginStartRequest(BaseModel):
+    no_browser: bool = False
+
+class ClaudeLoginInputRequest(BaseModel):
+    text: str
+
 
 # ── Chat / AI ────────────────────────────────────────────────
 
@@ -60,6 +96,11 @@ async def chat(body: ChatRequest, _=Depends(require_auth)):
     """Send a message to the AI agent."""
     response = await agent.chat(body.message, body.session_id)
     return {"response": response}
+
+@router.get("/approvals")
+async def get_pending_approvals(_=Depends(require_auth)):
+    """Actions waiting for the user's approval (decisions are sent over /ws/chat)."""
+    return [approvals.public(r) for r in approvals.pending()]
 
 @router.get("/chat/sessions")
 async def get_sessions(_=Depends(require_auth)):
@@ -179,6 +220,117 @@ async def sys_info(_=Depends(require_auth)):
     """Get system information snapshot."""
     return system_monitor.get_snapshot()
 
+# ── AI Models ────────────────────────────────────────────────
+
+def _provider_call(fn, *args):
+    from server.services.ai_providers import ProviderError, provider_status
+    try:
+        fn(*args)
+    except ProviderError as e:
+        raise HTTPException(status_code=400, detail=str(e))
+    return provider_status()
+
+@router.get("/ai/providers")
+async def get_ai_providers(_=Depends(require_auth)):
+    """Providers, their setup state, and which model MIA is using."""
+    from server.services.ai_providers import provider_status
+    return provider_status()
+
+@router.post("/ai/providers/{provider_id}/key")
+async def save_ai_key(provider_id: str, body: ApiKeyRequest, _=Depends(require_auth)):
+    from server.services.ai_providers import save_api_key
+    return _provider_call(save_api_key, provider_id, body.api_key)
+
+@router.delete("/ai/providers/{provider_id}/key")
+async def delete_ai_key(provider_id: str, _=Depends(require_auth)):
+    from server.services.ai_providers import remove_api_key
+    return _provider_call(remove_api_key, provider_id)
+
+@router.post("/ai/providers/{provider_id}/test")
+async def test_ai_provider(provider_id: str, body: ProviderTestRequest, _=Depends(require_auth)):
+    from server.services.ai_providers import ProviderError, test_provider
+    try:
+        return await test_provider(provider_id, body.model)
+    except ProviderError as e:
+        raise HTTPException(status_code=400, detail=str(e))
+
+@router.post("/ai/active")
+async def set_active_ai(body: ActiveModelRequest, _=Depends(require_auth)):
+    from server.services.ai_providers import set_active
+    return _provider_call(set_active, body.provider, body.model)
+
+@router.get("/ai/providers/openrouter/models")
+async def openrouter_model_list(q: str = "", _=Depends(require_auth)):
+    """OpenRouter models that support tools (cached for an hour); `q` filters by name."""
+    import asyncio
+    from server.services.ai_providers import ProviderError, openrouter_models, search_openrouter_models
+    try:
+        if q:
+            await asyncio.to_thread(openrouter_models)
+            return search_openrouter_models(q, limit=50)
+        return await asyncio.to_thread(openrouter_models)
+    except ProviderError as e:
+        raise HTTPException(status_code=502, detail=str(e))
+
+@router.post("/ai/providers/openrouter/oauth/start")
+async def openrouter_oauth_start(body: OpenRouterStartRequest, _=Depends(require_auth)):
+    """Start OpenRouter browser sign-in; returns the URL to open."""
+    from server.services.ai_providers import openrouter_auth_start
+    return {"url": openrouter_auth_start(body.callback_url)}
+
+@router.post("/ai/providers/openrouter/oauth/finish")
+async def openrouter_oauth_finish(body: OpenRouterFinishRequest, _=Depends(require_auth)):
+    """Exchange the sign-in code for a key and save it."""
+    import asyncio
+    from server.services.ai_providers import ProviderError, openrouter_auth_finish, provider_status
+    try:
+        await asyncio.to_thread(openrouter_auth_finish, body.code)
+    except ProviderError as e:
+        raise HTTPException(status_code=400, detail=str(e))
+    return provider_status()
+
+@router.post("/ai/providers/anthropic/auth-mode")
+async def set_claude_auth(body: ClaudeAuthModeRequest, _=Depends(require_auth)):
+    from server.services.ai_providers import set_claude_auth_mode
+    return _provider_call(set_claude_auth_mode, body.mode)
+
+@router.post("/ai/providers/anthropic/install-cli")
+async def install_claude_cli(_=Depends(require_auth)):
+    """Download Anthropic's official `ant` CLI (needed for browser sign-in)."""
+    import asyncio
+    from server.services.ai_providers import ProviderError, install_ant, provider_status
+    try:
+        await asyncio.to_thread(install_ant)
+    except ProviderError as e:
+        raise HTTPException(status_code=400, detail=str(e))
+    return provider_status()
+
+@router.get("/ai/providers/anthropic/login")
+async def claude_login_status(_=Depends(require_auth)):
+    from server.services.ai_providers import claude_login
+    return claude_login.status()
+
+@router.post("/ai/providers/anthropic/login")
+async def claude_login_start(body: ClaudeLoginStartRequest, _=Depends(require_auth)):
+    from server.services.ai_providers import ProviderError, claude_login
+    try:
+        return claude_login.start(body.no_browser)
+    except ProviderError as e:
+        raise HTTPException(status_code=400, detail=str(e))
+
+@router.post("/ai/providers/anthropic/login/input")
+async def claude_login_input(body: ClaudeLoginInputRequest, _=Depends(require_auth)):
+    from server.services.ai_providers import ProviderError, claude_login
+    try:
+        return claude_login.send_input(body.text)
+    except ProviderError as e:
+        raise HTTPException(status_code=400, detail=str(e))
+
+@router.delete("/ai/providers/anthropic/login")
+async def claude_login_cancel(_=Depends(require_auth)):
+    from server.services.ai_providers import claude_login
+    return claude_login.cancel()
+
 @router.get("/settings")
 async def get_settings(_=Depends(require_auth)):
     """Get server configuration and settings."""
@@ -239,8 +391,48 @@ async def create_task(body: TaskRequest, _=Depends(require_auth)):
 
 @router.delete("/tasks/{task_id}")
 async def remove_task(task_id: str, _=Depends(require_auth)):
-    """Remove a scheduled task."""
-    return task_scheduler.remove_task(task_id)
+    """Remove a scheduled task (the user's own action, so no approval step)."""
+    from server.services.scheduler import SchedulerError
+    try:
+        return task_scheduler.remove_task(task_id)
+    except SchedulerError as e:
+        raise HTTPException(status_code=404, detail=str(e))
+
+@router.post("/tasks/{task_id}/run")
+async def run_task_now(task_id: str, _=Depends(require_auth)):
+    """Run a scheduled task immediately (in the background)."""
+    from server.services.scheduler import SchedulerError
+    try:
+        task_scheduler.run_now(task_id)
+    except SchedulerError as e:
+        raise HTTPException(status_code=404, detail=str(e))
+    return {"success": True}
+
+@router.post("/tasks/{task_id}/enabled")
+async def set_task_enabled(task_id: str, body: TaskEnabledRequest, _=Depends(require_auth)):
+    """Pause or resume a scheduled task."""
+    from server.services.scheduler import SchedulerError
+    try:
+        return task_scheduler.set_enabled(task_id, body.enabled)
+    except SchedulerError as e:
+        raise HTTPException(status_code=400, detail=str(e))
+
+@router.get("/heartbeat")
+async def get_heartbeat(_=Depends(require_auth)):
+    return task_scheduler.heartbeat_status()
+
+@router.post("/heartbeat")
+async def update_heartbeat(body: HeartbeatRequest, _=Depends(require_auth)):
+    from server.services.scheduler import SchedulerError
+    try:
+        return task_scheduler.configure_heartbeat(**body.model_dump())
+    except SchedulerError as e:
+        raise HTTPException(status_code=400, detail=str(e))
+
+@router.post("/heartbeat/run")
+async def run_heartbeat_now(_=Depends(require_auth)):
+    """Run the heartbeat check once, now (ignores active hours)."""
+    return await task_scheduler.run_heartbeat_now()
 
 
 # ── Skills ───────────────────────────────────────────────────

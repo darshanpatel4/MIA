@@ -3,15 +3,16 @@ from server.plugins import tool
 
 @tool(
     name="execute_command",
-    description="Execute a PowerShell or CMD command on this PC. Use this for any system operations.",
+    description="Execute a PowerShell or CMD command on this PC. Use this for any system operations. Commands that delete or overwrite data need the user's approval, so pass `reason` for those.",
     parameters={
         "command": {"type": "string", "description": "The command to execute"},
         "shell": {"type": "string", "description": "Shell to use: 'powershell' or 'cmd'. Default: powershell", "default": "powershell"},
-        "timeout": {"type": "integer", "description": "Max seconds to wait. Default: 30", "default": 30}
+        "timeout": {"type": "integer", "description": "Max seconds to wait. Default: 30", "default": 30},
+        "reason": {"type": "string", "description": "For commands that delete/overwrite: what will be removed and why"}
     },
     required=["command"]
 )
-def execute_command(command: str, shell: str = "powershell", timeout: int = 30) -> str:
+def execute_command(command: str, shell: str = "powershell", timeout: int = 30, reason: str = "") -> str:
     """Execute a shell command and return the output."""
     try:
         if shell == "powershell":

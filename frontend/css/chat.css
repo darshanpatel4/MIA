@@ -322,3 +322,149 @@
 
 @keyframes fadeIn { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
 @keyframes pulse { 0%, 80%, 100% { transform: scale(0); } 40% { transform: scale(1); } }
+
+/* ── Approval Cards ──────────────────────────────────────── */
+.message.approval-message .message-avatar {
+    background: rgba(224, 178, 60, 0.14);
+    color: var(--warning);
+    border-color: rgba(224, 178, 60, 0.3);
+}
+.message.approval-message .message-body {
+    min-width: 0;
+    flex: 1;
+}
+.approval-card {
+    width: min(640px, 100%);
+    background: var(--bg-card);
+    border: 1px solid rgba(224, 178, 60, 0.35);
+    border-left: 3px solid var(--warning);
+    border-radius: var(--radius);
+    border-top-left-radius: 4px;
+    padding: 14px 16px;
+    font-size: 14px;
+    color: var(--text);
+}
+.approval-card.kind-send,
+.approval-card.kind-command {
+    border-left-color: var(--danger);
+}
+.approval-head {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-bottom: 8px;
+    font-size: 11px;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+}
+.approval-tag {
+    color: var(--warning);
+    font-weight: 600;
+}
+.approval-kind {
+    color: var(--text-dim);
+    padding: 2px 6px;
+    border: 1px solid var(--border-strong);
+    border-radius: var(--radius-sm);
+}
+.approval-id {
+    margin-left: auto;
+    color: var(--text-muted);
+    font-family: var(--font-mono);
+    text-transform: none;
+}
+.approval-title {
+    font-weight: 600;
+    line-height: 1.45;
+    overflow-wrap: anywhere;
+}
+.approval-reason {
+    display: flex;
+    gap: 10px;
+    margin-top: 10px;
+    padding: 8px 10px;
+    background: var(--bg-hover);
+    border-radius: var(--radius-sm);
+    line-height: 1.5;
+}
+.approval-label {
+    flex-shrink: 0;
+    color: var(--text-dim);
+    font-size: 12px;
+    font-weight: 600;
+    padding-top: 1px;
+}
+.approval-facts {
+    display: grid;
+    grid-template-columns: max-content 1fr;
+    gap: 4px 12px;
+    margin: 10px 0 0;
+    font-size: 12.5px;
+}
+.approval-facts dt {
+    color: var(--text-dim);
+    text-transform: capitalize;
+}
+.approval-facts dd {
+    margin: 0;
+    font-family: var(--font-mono);
+    overflow-wrap: anywhere;
+}
+.approval-diff {
+    margin: 10px 0 0;
+    max-height: 320px;
+    overflow: auto;
+    background: var(--bg-deep);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    padding: 8px 0;
+    font-family: var(--font-mono);
+    font-size: 12px;
+    line-height: 1.5;
+}
+.diff-line {
+    display: block;
+    padding: 0 10px;
+    white-space: pre;
+}
+.diff-line.add { background: rgba(79, 196, 154, 0.12); color: var(--success); }
+.diff-line.del { background: rgba(226, 96, 79, 0.14); color: var(--danger); }
+.diff-line.hunk { color: var(--info); }
+.diff-line.file { color: var(--text-muted); }
+.approval-actions {
+    display: flex;
+    gap: 8px;
+    margin-top: 12px;
+}
+.approval-btn {
+    font: inherit;
+    font-size: 13px;
+    font-weight: 600;
+    padding: 7px 16px;
+    border-radius: var(--radius-sm);
+    border: 1px solid var(--border-strong);
+    background: transparent;
+    color: var(--text);
+    cursor: pointer;
+    transition: background var(--transition), border-color var(--transition);
+}
+.approval-btn.approve {
+    background: var(--accent);
+    border-color: var(--accent);
+    color: var(--accent-ink);
+}
+.approval-btn.approve:hover { background: var(--accent-light); }
+.approval-btn.reject:hover { background: var(--bg-hover); border-color: var(--danger); color: var(--danger); }
+.approval-btn:disabled { opacity: 0.5; cursor: default; }
+.approval-status {
+    margin-top: 10px;
+    font-size: 12.5px;
+    color: var(--text-dim);
+    overflow-wrap: anywhere;
+}
+.approval-card.resolved-done { border-left-color: var(--success); border-color: var(--border); }
+.approval-card.resolved-done .approval-status strong { color: var(--success); }
+.approval-card.resolved-rejected,
+.approval-card.resolved-expired { border-left-color: var(--text-muted); border-color: var(--border); opacity: 0.8; }
+.approval-card.resolved-failed .approval-status strong { color: var(--danger); }

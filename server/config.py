@@ -30,7 +30,17 @@ class Config:
     # --- AI Provider ---
     AI_PROVIDER: str = os.getenv("AI_PROVIDER", "gemini").lower()
     GEMINI_API_KEY: str = os.getenv("GEMINI_API_KEY", "")
+    GEMINI_MODEL: str = os.getenv("GEMINI_MODEL", "gemini-3.5-flash")
     OPENAI_API_KEY: str = os.getenv("OPENAI_API_KEY", "")
+    OPENAI_MODEL: str = os.getenv("OPENAI_MODEL", "gpt-4o")
+    DEEPSEEK_API_KEY: str = os.getenv("DEEPSEEK_API_KEY", "")
+    DEEPSEEK_MODEL: str = os.getenv("DEEPSEEK_MODEL", "deepseek-flash")
+    OPENROUTER_API_KEY: str = os.getenv("OPENROUTER_API_KEY", "")
+    OPENROUTER_MODEL: str = os.getenv("OPENROUTER_MODEL", "anthropic/claude-opus-5")
+    ANTHROPIC_API_KEY: str = os.getenv("ANTHROPIC_API_KEY", "")
+    ANTHROPIC_MODEL: str = os.getenv("ANTHROPIC_MODEL", "claude-opus-5")
+    # "api_key" uses ANTHROPIC_API_KEY; "login" uses the browser sign-in profile from `ant auth login`
+    ANTHROPIC_AUTH: str = os.getenv("ANTHROPIC_AUTH", "api_key").lower()
     OLLAMA_BASE_URL: str = os.getenv("OLLAMA_BASE_URL", "http://localhost:11434")
     OLLAMA_MODEL: str = os.getenv("OLLAMA_MODEL", "llama3")
 
@@ -77,8 +87,14 @@ class Config:
             errors.append("GEMINI_API_KEY is required when AI_PROVIDER=gemini")
         elif cls.AI_PROVIDER == "openai" and not cls.OPENAI_API_KEY:
             errors.append("OPENAI_API_KEY is required when AI_PROVIDER=openai")
-        elif cls.AI_PROVIDER not in ("gemini", "openai", "ollama"):
-            errors.append(f"Unknown AI_PROVIDER: {cls.AI_PROVIDER}. Use gemini, openai, or ollama")
+        elif cls.AI_PROVIDER == "deepseek" and not cls.DEEPSEEK_API_KEY:
+            errors.append("DEEPSEEK_API_KEY is required when AI_PROVIDER=deepseek")
+        elif cls.AI_PROVIDER == "openrouter" and not cls.OPENROUTER_API_KEY:
+            errors.append("OPENROUTER_API_KEY is required when AI_PROVIDER=openrouter (or connect OpenRouter in Settings)")
+        elif cls.AI_PROVIDER == "anthropic" and cls.ANTHROPIC_AUTH != "login" and not cls.ANTHROPIC_API_KEY:
+            errors.append("ANTHROPIC_API_KEY is required when AI_PROVIDER=anthropic (or sign in with your browser in Settings)")
+        elif cls.AI_PROVIDER not in ("gemini", "openai", "anthropic", "openrouter", "deepseek", "ollama"):
+            errors.append(f"Unknown AI_PROVIDER: {cls.AI_PROVIDER}. Use openrouter, anthropic, openai, gemini, deepseek, or ollama")
 
         if cls.MIA_PASSWORD == "changeme":
             errors.append("⚠️  WARNING: Using default password 'changeme'. Change it in .env!")

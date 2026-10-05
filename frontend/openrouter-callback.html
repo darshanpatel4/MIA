@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Connecting OpenRouter — MIA</title>
+    <link rel="stylesheet" href="/css/main.css?v=13">
+    <style>
+        body { display: flex; align-items: center; justify-content: center; min-height: 100vh; margin: 0; padding: 0 16px;
+               background: var(--bg-deep); color: var(--text); font-family: var(--font-sans); }
+        .box { max-width: 420px; width: 100%; padding: 28px; background: var(--bg-card); border: 1px solid var(--border);
+               border-radius: var(--radius); text-align: center; }
+        h1 { font-size: 18px; margin: 0 0 10px; }
+        p { color: var(--text-dim); font-size: 14px; line-height: 1.5; margin: 0 0 16px; }
+        p.error { color: var(--danger); }
+        a { color: var(--accent-light); }
+    </style>
+</head>
+<body>
+    <div class="box">
+        <h1 id="title">Connecting OpenRouter…</h1>
+        <p id="message">One moment.</p>
+        <a href="/" id="back" hidden>Back to MIA</a>
+    </div>
+    <script>
+        (async () => {
+            const title = document.getElementById('title');
+            const message = document.getElementById('message');
+            const back = document.getElementById('back');
+            const fail = (text) => {
+                title.textContent = "Couldn't connect OpenRouter";
+                message.textContent = text;
+                message.className = 'error';
+                back.hidden = false;
+            };
+
+            const code = new URLSearchParams(location.search).get('code');
+            const token = localStorage.getItem('mia_token');
+            if (!code) return fail('OpenRouter did not send a sign-in code. Start again from Settings → AI Models.');
+            if (!token) return fail('You are not logged in to MIA in this browser. Log in, then start the sign-in again.');
+
+            try {
+                const res = await fetch('/api/ai/providers/openrouter/oauth/finish', {
+                    method: 'POST',
+                    headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ code }),
+                });
+                const data = await res.json().catch(() => ({}));
+                if (!res.ok) return fail(data.detail || `Request failed (${res.status})`);
+                try { localStorage.setItem('mia_openrouter_connected', '1'); } catch (e) { /* optional */ }
+                title.textContent = 'OpenRouter connected';
+                message.textContent = 'Taking you back to MIA to pick a model…';
+                history.replaceState(null, '', '/openrouter-callback');  // drop the one-time code from the address bar
+                setTimeout(() => { location.href = '/'; }, 1200);
+            } catch (e) {
+                fail(`Couldn't reach MIA: ${e.message}`);
+            }
+        })();
+    </script>
+</body>
+</html>

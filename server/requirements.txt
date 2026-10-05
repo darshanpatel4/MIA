@@ -7,6 +7,7 @@ passlib[bcrypt]
 python-dotenv
 google-genai
 openai
+anthropic>=1.6,<2
 psutil
 pyautogui
 pynput

@@ -76,6 +76,10 @@ async def lifespan(app: FastAPI):
     from server.services.scheduler import task_scheduler
     task_scheduler.start()
 
+    # Permanently remove self-modification backups/trash older than 30 days
+    from server.selfmod.journal import journal
+    journal.purge_older_than(days=30)
+
     # Start Telegram Bot Channel
     import asyncio
     from server.channels.telegram_bot import start_telegram_bot
@@ -146,6 +150,14 @@ async def root(request: Request):
     if token and verify_token(token):
         return FileResponse(str(frontend_dir / "index.html"))
     return RedirectResponse(url="/login")
+
+
+@app.get("/openrouter-callback")
+async def openrouter_callback():
+    """Landing page OpenRouter redirects to after sign-in. Public on purpose: it holds no data;
+    its script sends the one-time code to the authenticated API, and the code is useless
+    without the PKCE verifier that only the server has."""
+    return FileResponse(str(frontend_dir / "openrouter-callback.html"))
 
 
 @app.get("/login")

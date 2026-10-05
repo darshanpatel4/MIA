@@ -58,6 +58,16 @@ class NotificationEngine:
         # Clean up disconnected clients
         self._clients -= disconnected
 
+    async def broadcast(self, event: dict):
+        """Send an arbitrary event (e.g. an approval request) to every connected web client."""
+        disconnected = set()
+        for ws in self._clients:
+            try:
+                await ws.send_json(event)
+            except Exception:
+                disconnected.add(ws)
+        self._clients -= disconnected
+
     def get_history(self, limit: int = 50) -> list:
         """Get notification history."""
         return self._history[-limit:]

@@ -166,11 +166,12 @@ def get_network_info() -> str:
     description="Visually find a UI element on the screen (like a human) and click it. Always use this to close windows, click buttons, icons, or UI elements.",
     parameters={
         "element_description": {"type": "string", "description": "Description of what to click (e.g., 'Notepad close button', 'Start menu icon')"},
-        "click_type": {"type": "string", "description": "'left', 'right', or 'double'", "default": "left"}
+        "click_type": {"type": "string", "description": "'left', 'right', or 'double'", "default": "left"},
+        "reason": {"type": "string", "description": "Needed for buttons that send, post, share, pay or delete: what exactly will be sent/published and why"}
     },
     required=["element_description"]
 )
-def visual_find_and_click(element_description: str, click_type: str = "left") -> str:
+def visual_find_and_click(element_description: str, click_type: str = "left", reason: str = "") -> str:
     """Find a UI element visually on the screen and click it like a human."""
     try:
         desc_lower = element_description.lower()
